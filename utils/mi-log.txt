@@ -1,0 +1,37 @@
+[2025-07-29 10:42:07 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:42:58 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:43:52 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:44:50 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:49:39 UTC-5] 🧪 path: /persona.php 
+[2025-07-29 10:49:39 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","Pragma":"no-cache","Cache-Control":"no-cache","X-Auth-Token":"null","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5501","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5501\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-07-29 10:49:39 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:49:54 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:49:54 UTC-5] 🧪 path: /persona.php 
+[2025-07-29 10:49:54 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","Pragma":"no-cache","Cache-Control":"no-cache","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTM4OTA1OTR9.xnFPjoBb5Wq18ClH_Bm-F7yIJ2ZJ8nTICy-fHHgxuuE","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5501","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5501\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-07-29 10:49:54 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:49:55 UTC-5] 📦 Listando tipos de documento
+[2025-07-29 10:49:55 UTC-5] El query es SELECT idTipoDocumentoIdentidad, descripcion 
+                  FROM SALES_TIPO_DOCUMENTO_IDENTIDAD 
+                  WHERE stsTipoDocumentoIdentidad = ?
+[2025-07-29 10:51:42 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:51:42 UTC-5] 🧪 path: /persona.php 
+[2025-07-29 10:51:42 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","Pragma":"no-cache","Cache-Control":"no-cache","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTM4OTA3MDJ9.MjmU0aMs9uvfo69ZHEbgzaPa8JcdjPsbC6GGfkNGqUw","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5501","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5501\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-07-29 10:51:42 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:51:43 UTC-5] 📦 Listando tipos de documento
+[2025-07-29 10:51:43 UTC-5] El query es SELECT idTipoDocumentoIdentidad, descripcion 
+                  FROM SALES_TIPO_DOCUMENTO_IDENTIDAD 
+                  WHERE stsTipoDocumentoIdentidad = ?
+[2025-07-29 10:52:30 UTC-5] 🧪 path: /productos.php 
+[2025-07-29 10:52:30 UTC-5] 🧪 ID:  
+[2025-07-29 10:52:30 UTC-5] 🌐 GET /api/public/productos.php
+[2025-07-29 10:52:30 UTC-5] 🧪 path: /productos.php 
+[2025-07-29 10:52:30 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","Pragma":"no-cache","Cache-Control":"no-cache","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTM4OTA3MDJ9.MjmU0aMs9uvfo69ZHEbgzaPa8JcdjPsbC6GGfkNGqUw","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5501","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5501\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-07-29 10:52:30 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:52:30 UTC-5] 📦 Listando canales de venta
+[2025-07-29 10:52:31 UTC-5] 🧪 path: /persona.php 
+[2025-07-29 10:52:31 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","Pragma":"no-cache","Cache-Control":"no-cache","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTM4OTA3MDJ9.MjmU0aMs9uvfo69ZHEbgzaPa8JcdjPsbC6GGfkNGqUw","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5501","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5501\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-07-29 10:52:31 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-07-29 10:52:32 UTC-5] 📦 Listando tipos de documento
+[2025-07-29 10:52:32 UTC-5] El query es SELECT idTipoDocumentoIdentidad, descripcion 
+                  FROM SALES_TIPO_DOCUMENTO_IDENTIDAD 
+                  WHERE stsTipoDocumentoIdentidad = ?

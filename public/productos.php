@@ -1,11 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../utils/Logger.php';
-
 // CORS (esto debe ir primero)
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Auth-Token");
+header("Content-Type: application/json; charset=UTF-8");
+
+require_once __DIR__ . '/../utils/Logger.php';
 
 // Manejo de preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -13,17 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-header("Content-Type: application/json; charset=UTF-8");
-
-// Cargar variables de entorno desde .env
-if (file_exists(__DIR__ . '/../.env')) {
-    $lines = file(__DIR__ . '/../.env');
-    foreach ($lines as $line) {
-        if (trim($line) && strpos(trim($line), '#') !== 0) {
-            putenv(trim($line));
-        }
-    }
-}
 
 require_once __DIR__ . '/../src/ProductController.php';
 require_once __DIR__ . '/../src/JWTUtils.php';

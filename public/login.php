@@ -1,4 +1,10 @@
 <?php
+// CORS (esto debe ir primero)
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Auth-Token");
+header("Content-Type: application/json; charset=UTF-8");
+
 require_once __DIR__ . '/../src/JWTUtils.php';
 require_once __DIR__ . '/../config/cargarEnv.php'; 
 require_once __DIR__ . '/../utils/Logger.php';
@@ -6,10 +12,7 @@ require_once __DIR__ . '/../utils/Logger.php';
 
 cargarEnv(__DIR__ . '/../.env');
 
-// CORS (esto debe ir primero)
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
 
 // Manejo de preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -17,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-header("Content-Type: application/json; charset=UTF-8");
 
 $input = json_decode(file_get_contents("php://input"), true);
 $usuario = $input['usuario'] ?? '';
