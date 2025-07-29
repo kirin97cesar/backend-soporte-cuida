@@ -14,15 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Cargar variables de entorno desde .env
-if (file_exists(__DIR__ . '/../.env')) {
-    $lines = file(__DIR__ . '/../.env');
-    foreach ($lines as $line) {
-        if (trim($line) && strpos(trim($line), '#') !== 0) {
-            putenv(trim($line));
-        }
-    }
-}
 
 require_once __DIR__ . '/../src/PeriodoController.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
