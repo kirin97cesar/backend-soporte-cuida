@@ -11,43 +11,47 @@ class EsquemasController {
         $this->conn = $database->conectar();
     }
 
-   public function index($estado = 'ACT') {
-        Logger::logGlobal("📦 Listando de estados válidos");
+    public function index($estado = 'ACT') {
+        Logger::logGlobal("📦 Listando datos para formularios (estado = $estado)");
 
-        // Consulta de estados
-        $query1 = "select idEstadoInterno, descripcion  from PSP_ESTADO pe 
-        WHERE pe.stsEstado = :estado AND pe.idCanalVenta = 2";
-        Logger::logGlobal("El query es: $query1");
+        // 1. Estados internos
+        $query1 = "SELECT idEstadoInterno, descripcion  
+                FROM PSP_ESTADO 
+                WHERE stsEstado = :estado AND idCanalVenta = 2";
+        Logger::logGlobal("🔍 Query Estados: $query1");
         $stmt1 = $this->conn->prepare($query1);
         $stmt1->bindParam(':estado', $estado);
         $stmt1->execute();
         $listadoEstados = $stmt1->fetchAll(PDO::FETCH_ASSOC);
 
-        //Canales
-        $query2 = "SELECT idCanalVenta, descripcion FROM PSP_PBI_CANAL_VENTA pcv WHERE pcv.stsCanalVenta = 'ACT'";
-        Logger::logGlobal("El query es: $query2");
+        // 2. Canales de venta
+        $query2 = "SELECT idCanalVenta, descripcion 
+                FROM PSP_PBI_CANAL_VENTA 
+                WHERE stsCanalVenta = 'ACT'";
+        Logger::logGlobal("🔍 Query Canales: $query2");
         $stmt2 = $this->conn->prepare($query2);
-        $stmt2->bindParam(':estado', $estado);
         $stmt2->execute();
         $canales = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-        //Diagnosticos
-        $query3 = "SELECT idCIE10, dscCIE10 FROM PSP_CIE10 pc WHERE indEliminado = 'N'";
-        Logger::logGlobal("El query es: $query3");
+        // 3. Diagnósticos CIE10
+        $query3 = "SELECT idCIE10, dscCIE10 
+                FROM PSP_CIE10 
+                WHERE indEliminado = 'N'";
+        Logger::logGlobal("🔍 Query Diagnósticos: $query3");
         $stmt3 = $this->conn->prepare($query3);
-        $stmt3->bindParam(':estado', $estado);
         $stmt3->execute();
         $diagnosticos = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
-        //Frecuencias
-        $query4 = "SELECT idFrecuencia, descripcion FROM PSP_FRECUENCIA pf WHERE stsFrecuencia = 'ACT'";
-        Logger::logGlobal("El query es: $query4");
+        // 4. Frecuencias
+        $query4 = "SELECT idFrecuencia, descripcion 
+                FROM PSP_FRECUENCIA 
+                WHERE stsFrecuencia = 'ACT'";
+        Logger::logGlobal("🔍 Query Frecuencias: $query4");
         $stmt4 = $this->conn->prepare($query4);
-        $stmt4->bindParam(':estado', $estado);
         $stmt4->execute();
         $frecuencias = $stmt4->fetchAll(PDO::FETCH_ASSOC);
 
-        // Salida JSON
+        // 5. Salida final
         echo json_encode([
             'listadoEstados' => $listadoEstados,
             'canales' => $canales,
@@ -55,8 +59,7 @@ class EsquemasController {
             'frecuencias' => $frecuencias
         ]);
     }
-
-
+    
     public function buscarEsquema($numero) {
         Logger::logGlobal("📦 buscarEsquema ---> $numero");
 
