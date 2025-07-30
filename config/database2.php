@@ -1,0 +1,40 @@
+<?php
+
+require_once __DIR__ . '/../utils/Logger.php';
+require_once __DIR__ . '/../config/cargarEnv.php';
+
+cargarEnv(__DIR__ . '/../.env');
+
+class Database2 {
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
+    public $conn;
+
+
+    public function __construct() {
+        $this->host     = $_ENV["DB_HOST_ESQUEMA"];
+        $this->db_name  = $_ENV["DB_NAME_ESQUEMA"];
+        $this->username = $_ENV["DB_USER_ESQUEMA"];
+        $this->password = $_ENV["DB_PASS_ESQUEMA"];
+    }
+
+    public function conectar() {
+        $this->conn = null;
+
+        try {
+            $this->conn = new PDO(
+                "mysql:host={$this->host};dbname={$this->db_name}",
+                $this->username,
+                $this->password
+            );
+            $this->conn->exec("set names utf8");
+
+        } catch (PDOException $exception) {
+            Logger::logGlobal("Error en la conexión: " . $exception->getMessage());
+        }
+
+        return $this->conn;
+    }
+}

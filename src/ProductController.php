@@ -136,6 +136,26 @@ class ProductController {
         }
     }
 
+    public function obtenerProductoXSku($skus) {
+        Logger::logGlobal("📦 Listando productos por SKU: " . json_encode($skus));
+
+        if (empty($skus) || !is_array($skus)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($skus), '?'));
+
+        $query = "SELECT sp.skuWMS AS sku, sp.nombreComercial AS descripcion, sp.idPresentacion 
+                FROM SALES_PRODUCTO sp 
+                WHERE sp.stsProducto = 'ACT' AND sp.skuWMS IN ($placeholders)";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($skus);
+
+        $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $productos;
+    }
+
     private function obtenerProducto($data) {
         if (!$data['idPetitorio']) {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.precioBase, 
