@@ -59,7 +59,7 @@ class EsquemasController {
             'frecuencias' => $frecuencias
         ]);
     }
-    
+
     public function buscarEsquema($numero) {
         Logger::logGlobal("📦 buscarEsquema ---> $numero");
 
@@ -162,12 +162,11 @@ class EsquemasController {
 
     public function actualizarEsquema($data) {
         Logger::logGlobal("✏️ Actualizando esquema" . json_encode($data));
-        $query = "UPDATE PSP_PACIENTE_ESTADO SET idEstado = IFNULL(?, idEstado) where idPacienteDiagnostico = ? and idPacienteSeguimiento = ?";
+        $query = "UPDATE PSP_PACIENTE_ESTADO SET idEstado = IFNULL(?, idEstado) where idPacienteEstado = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([
             $data['idEstado'],
-            $data['idPacienteDiagnostico'] ?? null, 
-            $data['idPacienteSeguimiento'] ?? null
+            $data['idPacienteEstado'] ?? null
         ]);
         Logger::logGlobal("query $query");
         echo json_encode(["mensaje" => "Esquema actualizado"]);
