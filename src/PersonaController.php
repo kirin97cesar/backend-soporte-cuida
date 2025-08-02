@@ -93,7 +93,7 @@ class PersonaController {
                             apellidosEnvio = IFNULL(?, apellidosEnvio),
                             idTipoDocumentoEnvio =  IFNULL(?, idTipoDocumentoEnvio),
                             numeroDocumentoEnvio = IFNULL(?, numeroDocumentoEnvio)
-                       WHERE numeroDocumentoEnvio IN (SELECT idSolicitud from SALES_SOLICITUD WHERE idCliente = ?)";
+                       WHERE idSolicitud IN (SELECT idSolicitud from SALES_SOLICITUD WHERE idCliente = ?)";
         } else {
             $query2 = "UPDATE SALES_PEDIDO SET 
                             nombresEnvio = IFNULL(?, nombresEnvio),

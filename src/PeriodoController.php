@@ -157,7 +157,14 @@ class PeriodoController {
     public function actualizarNombresEnvio($data) {
         Logger::logGlobal("✏️ Actualizando periodo $id: " . json_encode($data));
 
-        if($data['codigoMotorizado']) {
+        if($data['codigoMotorizado'] == 'NULL') {
+            $query2 = "UPDATE SALES_PEDIDO SET idMotorizado = ? WHERE idPedido = ?";
+            Logger::logGlobal("query $query2");
+            $stmt2 = $this->conn->prepare($query2);
+            $stmt2->execute([null, $data['id']]);
+        }
+
+        if($data['codigoMotorizado'] && $data['codigoMotorizado'] != 'NULL') {
             $query1 = "SELECT idMotorizado FROM SALES_MOTORIZADO WHERE codigoMotorizado = ? AND stsMotorizado = 'ACT'";
             Logger::logGlobal("query $query1");
             $stmt1 = $this->conn->prepare($query1);
