@@ -59,4 +59,9 @@ class JWTUtils {
     private static function base64UrlEncode($data) {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
+
+    public static function obtenerEmail($token) {
+        $datos = self::verificarToken($token);
+        return $datos && isset($datos['usuario']) ? $datos['usuario'] : null;
+    }
 }

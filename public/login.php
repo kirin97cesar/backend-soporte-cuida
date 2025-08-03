@@ -22,11 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 $input = json_decode(file_get_contents("php://input"), true);
-$usuario = $input['usuario'] ?? '';
-$clave = $input['clave'] ?? '';
+$usuario = $input['usuario'] ?? null;
+$attributes = $input['attributes'] ?? null;
 
 // Autenticación
-if ($usuario === $_ENV["USERNAME"] && $clave === $_ENV["PASSWORD"]) {
+if ($usuario && $attributes) {
     $payload = ['usuario' => $usuario];
     $token = JWTUtils::generarToken($payload);
     echo json_encode(["token" => $token]);
