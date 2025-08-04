@@ -26,7 +26,7 @@ class PersonaController {
         Logger::logGlobal("📦 buscarPersona ---> $numeroDocumento");
 
         $query = "SELECT sp.idPersona, sp.nombre, sp.apellidos, sp.numeroDocumento, sp.idTipoDocumentoIdentidad,
-                         stdi.descripcion 
+                        sp.apePaterno, sp.apeMaterno, stdi.descripcion 
                   FROM SALES_PERSONA sp 
                   INNER JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
                       ON stdi.idTipoDocumentoIdentidad = sp.idTipoDocumentoIdentidad 
@@ -51,6 +51,8 @@ class PersonaController {
         $query = "UPDATE SALES_PERSONA SET 
                     nombre = IFNULL(?, nombre),
                     apellidos = IFNULL(?, apellidos),
+                    apePaterno  = IFNULL(?, apePaterno),
+                    apeMaterno  = IFNULL(?, apeMaterno),
                     idTipoDocumentoIdentidad = IFNULL(?, idTipoDocumentoIdentidad),
                     numeroDocumento = IFNULL(?, numeroDocumento)
                   WHERE idPersona = ?";
@@ -59,6 +61,8 @@ class PersonaController {
         $stmt->execute([
             $data['nombre'] ?? null,
             $data['apellidos'] ?? null,
+            $data['apellidosPaterno'] ?? null,
+            $data['apellidosMaterno'] ?? null,
             $data['idTipoDocumentoIdentidad'] ?? null,
             $data['numeroDocumento'] ?? null,
             $data['idPersona']
@@ -73,6 +77,8 @@ class PersonaController {
         $query = "UPDATE SALES_PERSONA SET 
                     nombre = IFNULL(?, nombre),
                     apellidos = IFNULL(?, apellidos),
+                    apePaterno  = IFNULL(?, apePaterno),
+                    apeMaterno  = IFNULL(?, apeMaterno),
                     idTipoDocumentoIdentidad = IFNULL(?, idTipoDocumentoIdentidad),
                     numeroDocumento = IFNULL(?, numeroDocumento)
                   WHERE idPersona = ?";
@@ -81,6 +87,8 @@ class PersonaController {
         $stmt->execute([
             $data['nombre'] ?? null,
             $data['apellidos'] ?? null,
+            $data['apellidosPaterno'] ?? null,
+            $data['apellidosMaterno'] ?? null,
             $data['idTipoDocumentoIdentidad'] ?? null,
             $data['numeroDocumento'] ?? null,
             $data['idPersona']
