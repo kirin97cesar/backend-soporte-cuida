@@ -44,6 +44,7 @@ class ProductController {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, 
                             sp.precioBase, sppc.precioNormal, sppc.idCanalVenta,
                             spcb.porcentajeDescuento, spcb.montoDescuentoMinimo,
+                            spcb.porcentajeDescuentoAnterior, spcb.montoDescuentoMinimoAnterior,
                             scv2.descripcion as descripcionCanalVenta
                     FROM SALES_PRODUCTO sp 
                     LEFT JOIN SALES_PRODUCTO_PRESENTACION_CANAL sppc 
@@ -64,6 +65,7 @@ class ProductController {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, 
                     sp.precioBase, sppc.precioNormal, sppc.idCanalVenta,
                     spcb.porcentajeDescuento, spcb.montoDescuentoMinimo,
+                    spcb.porcentajeDescuentoAnterior, spcb.montoDescuentoMinimoAnterior,
                     scv2.descripcion as descripcionCanalVenta
             FROM SALES_PRODUCTO sp 
             LEFT JOIN SALES_PRODUCTO_PRESENTACION_CANAL sppc 
@@ -159,7 +161,8 @@ class ProductController {
     private function obtenerProducto($data) {
         if (!$data['idPetitorio']) {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.precioBase, 
-                            sppc.precioNormal, spcb.porcentajeDescuento, spcb.montoDescuentoMinimo, sppc.idPresentacion
+                            sppc.precioNormal, spcb.porcentajeDescuento, spcb.montoDescuentoMinimo, sppc.idPresentacion,
+                            spcb.porcentajeDescuentoAnterior, spcb.montoDescuentoMinimoAnterior
                       FROM SALES_PRODUCTO sp
                       LEFT JOIN SALES_PRODUCTO_PRESENTACION_CANAL sppc ON sp.idProducto = sppc.idProducto
                       LEFT JOIN SALES_PRODUCTO_CANAL_BENEFICIO spcb 
@@ -168,7 +171,8 @@ class ProductController {
             $params = [$data['idProducto'], $data['idCanalVenta']];
         } else {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.precioBase, 
-                            sppc.precioNormal, spcb.porcentajeDescuento, spcb.montoDescuentoMinimo, sppc.idPresentacion
+                            sppc.precioNormal, spcb.porcentajeDescuento, spcb.montoDescuentoMinimo, sppc.idPresentacion,
+                            spcb.porcentajeDescuentoAnterior, spcb.montoDescuentoMinimoAnterior
                       FROM SALES_PRODUCTO sp
                       LEFT JOIN SALES_PRODUCTO_PRESENTACION_CANAL sppc ON sp.idProducto = sppc.idProducto
                       LEFT JOIN SALES_PRODUCTO_CANAL_BENEFICIO spcb 
@@ -301,31 +305,53 @@ class ProductController {
         $porc = $data['porcentajeDescuento'] ?? 0;
         $monto = $data['montoDescuentoMinimo'] ?? 0;
 
-        if ($porc == 0 && $monto == 0 && $idCanal) {
-            $query = "DELETE FROM SALES_PRODUCTO_CANAL_BENEFICIO WHERE idProducto = ? AND idCanalVenta = ?";
-            $this->conn->prepare($query)->execute([$idProducto, $idCanal]);
-            Logger::logGlobal("Beneficio eliminado");
-            return;
-        }
-
-        $query = "SELECT 1 FROM SALES_PRODUCTO_CANAL_BENEFICIO WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoCanalBeneficio = 'ACT'";
+        // Buscar si ya existe el registro activo
+        $query = "SELECT porcentajeDescuento, montoDescuentoMinimo 
+                FROM SALES_PRODUCTO_CANAL_BENEFICIO
+                WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoCanalBeneficio = 'ACT'";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$idProducto, $idCanal]);
+        $row = $stmt->fetch();
 
-        if ($stmt->fetch()) {
-            $query = "UPDATE SALES_PRODUCTO_CANAL_BENEFICIO 
-                        SET porcentajeDescuento = IFNULL(?, porcentajeDescuento), 
-                            montoDescuentoMinimo = IFNULL(?, montoDescuentoMinimo)
-                      WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoCanalBeneficio = 'ACT'";
-            $this->conn->prepare($query)->execute([$porc, $monto, $idProducto, $idCanal]);
+        if ($row) {
+            $actualPorc = (float)$row['porcentajeDescuento'];
+            $actualMonto = (float)$row['montoDescuentoMinimo'];
+
+            // Solo actualizar si hubo cambios reales
+            if ($actualPorc != $porc || $actualMonto != $monto) {
+                $query = "UPDATE SALES_PRODUCTO_CANAL_BENEFICIO 
+                        SET 
+                            porcentajeDescuentoAnterior = porcentajeDescuento,
+                            montoDescuentoMinimoAnterior = montoDescuentoMinimo,
+                            porcentajeDescuento = ?, 
+                            montoDescuentoMinimo = ?,
+                            fechaModificacion = NOW()
+                        WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoCanalBeneficio = 'ACT'";
+                $this->conn->prepare($query)->execute([$porc, $monto, $idProducto, $idCanal]);
+
+                Logger::logGlobal("Beneficio actualizado con cambios (de $actualPorc a $porc)");
+            } else {
+                Logger::logGlobal("Beneficio no actualizado (sin cambios)");
+            }
         } else {
-            $query = "INSERT INTO SALES_PRODUCTO_CANAL_BENEFICIO
-                        (idProducto, idCanalVenta, idTipoBeneficio, porcentajeDescuento, montoDescuentoMinimo, fechaCreacion, fechaModificacion, stsProductoCanalBeneficio)
-                      VALUES (?, ?, 2, ?, ?, NOW(), NULL, 'ACT')";
+            // Insertar nuevo registro si no existe, dejando los campos *_Anterior como NULL
+            $query = "INSERT INTO SALES_PRODUCTO_CANAL_BENEFICIO (
+                        idProducto,
+                        idCanalVenta,
+                        idTipoBeneficio,
+                        porcentajeDescuento,
+                        montoDescuentoMinimo,
+                        porcentajeDescuentoAnterior,
+                        montoDescuentoMinimoAnterior,
+                        fechaCreacion,
+                        fechaModificacion,
+                        stsProductoCanalBeneficio
+                    )
+                    VALUES (?, ?, 2, ?, ?, NULL, NULL, NOW(), NULL, 'ACT')";
             $this->conn->prepare($query)->execute([$idProducto, $idCanal, $porc, $monto]);
-        }
 
-        Logger::logGlobal("Beneficio actualizado o insertado");
+            Logger::logGlobal("Beneficio insertado");
+        }
     }
 
 }
