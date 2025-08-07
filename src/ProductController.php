@@ -27,9 +27,14 @@ class ProductController {
         $stmt2 = $this->conn->prepare($query2);
         $stmt2->execute();
 
+        $query3 = "SELECT spcv.id, spcv.valor FROM SALES_PRODUCTO_CLASIFICACION_VALOR spcv";
+        $stmt3 = $this->conn->prepare($query3);
+        $stmt3->execute();
+
         echo json_encode([
             "canales" => $stmt->fetchAll(PDO::FETCH_ASSOC),
             "convenios" => $stmt2->fetchAll(PDO::FETCH_ASSOC),
+            "clasificaciones" => $stmt2->fetchAll(PDO::FETCH_ASSOC),
         ]);
     }
 
@@ -41,7 +46,7 @@ class ProductController {
         if((is_null($idPetitorio) || $idPetitorio == 'null')
         && (is_null($idCanalVenta) || $idCanalVenta == 'null')
         ) {
-            $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, 
+            $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.idClasificacionValor, 
                             sp.precioBase, sppc.precioNormal, sppc.idCanalVenta,
                             spcb.porcentajeDescuento, spcb.montoDescuentoMinimo,
                             spcb.porcentajeDescuentoAnterior, spcb.montoDescuentoMinimoAnterior,
@@ -62,7 +67,7 @@ class ProductController {
         } else if ((!is_null($idCanalVenta) || $idCanalVenta != 'null') &&
         (is_null($idPetitorio) || $idPetitorio == 'null')
         ) {
-            $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, 
+            $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.idClasificacionValor,
                     sp.precioBase, sppc.precioNormal, sppc.idCanalVenta,
                     spcb.porcentajeDescuento, spcb.montoDescuentoMinimo,
                     spcb.porcentajeDescuentoAnterior, spcb.montoDescuentoMinimoAnterior,
@@ -84,6 +89,7 @@ class ProductController {
         } else {
             $query2 = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, 
                         sp.precioBase, spt.descripcion as descripcionConvenio,
+                        sp.idClasificacionValor,
                         sppp.precioNormal, spt.idPetitorio
             FROM SALES_PRODUCTO sp 
             LEFT JOIN SALES_PRODUCTO_PRESENTACION_PETITORIO sppp
@@ -238,7 +244,10 @@ class ProductController {
 
     private function actualizarNombreComercial($data) {
         if (!empty($data['nombreComercial'])) {
-            $query = "UPDATE SALES_PRODUCTO SET nombreComercial = IFNULL(?, nombreComercial) WHERE idProducto = ?";
+            $query = "UPDATE SALES_PRODUCTO SET 
+                    nombreComercial = IFNULL(?, nombreComercial),
+                    idClasificacionValor = IFNULL(?, idClasificacionValor)
+                    WHERE idProducto = ?";
             $this->conn->prepare($query)->execute([$data['nombreComercial'], $data['idProducto']]);
         }
     }
