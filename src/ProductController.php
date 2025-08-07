@@ -257,7 +257,7 @@ class ProductController {
 
         $productoCanal = null;
         if ($data['idCanalVenta']) {
-            $query = "SELECT idProducto FROM SALES_PRODUCTO_CANAL WHERE idProducto = ? AND idCanalVenta = ?";
+            $query = "SELECT idProducto FROM SALES_PRODUCTO_CANAL WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoCanal = 'ACT'";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$data['idProducto'], $data['idCanalVenta']]);
             $productoCanal = $stmt->fetch(PDO::FETCH_ASSOC);
