@@ -11,31 +11,44 @@ class ProductController {
     }
 
     public function index() {
-        Logger::logGlobal("📦 Listando canales de venta");
-        $query = "SELECT scv1.idCanalVenta, scv1.descripcion, scv2.prefijo, 
-                         scv2.descripcion AS descripcionCanalPadre,
-                         scv2.idCanalVenta AS idCanalVentaPadre 
-                  FROM SALES_CANAL_VENTA scv1
-                  LEFT JOIN SALES_CANAL_VENTA scv2
+        try {
+            Logger::logGlobal("📦 Listando canales de venta");
+
+            $queries = [
+                "canales" => "
+                    SELECT scv1.idCanalVenta, scv1.descripcion, scv2.prefijo, 
+                        scv2.descripcion AS descripcionCanalPadre,
+                        scv2.idCanalVenta AS idCanalVentaPadre 
+                    FROM SALES_CANAL_VENTA scv1
+                    LEFT JOIN SALES_CANAL_VENTA scv2
                     ON scv2.idCanalVenta = scv1.idCanalVentaPadre
-                   AND scv1.nivel = 2
-                 WHERE scv1.stsCanalVenta = 'ACT'";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
+                    AND scv1.nivel = 2
+                    WHERE scv1.stsCanalVenta = 'ACT'
+                ",
+                "convenios" => "
+                    SELECT sp.idPetitorio, sp.descripcion 
+                    FROM SALES_PETITORIO sp
+                ",
+                "clasificaciones" => "
+                    SELECT spcv.id, spcv.valor 
+                    FROM SALES_PRODUCTO_CLASIFICACION_VALOR spcv
+                "
+            ];
 
-        $query2 = "SELECT sp.idPetitorio, sp.descripcion FROM SALES_PETITORIO sp";
-        $stmt2 = $this->conn->prepare($query2);
-        $stmt2->execute();
+            $resultados = [];
+            foreach ($queries as $key => $sql) {
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute();
+                $resultados[$key] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
 
-        $query3 = "SELECT spcv.id, spcv.valor FROM SALES_PRODUCTO_CLASIFICACION_VALOR spcv";
-        $stmt3 = $this->conn->prepare($query3);
-        $stmt3->execute();
+            echo json_encode($resultados);
 
-        echo json_encode([
-            "canales" => $stmt->fetchAll(PDO::FETCH_ASSOC),
-            "convenios" => $stmt2->fetchAll(PDO::FETCH_ASSOC),
-            "clasificaciones" => $stmt2->fetchAll(PDO::FETCH_ASSOC),
-        ]);
+        } catch (PDOException $e) {
+            Logger::logError("Error al listar datos: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(["error" => "Error al obtener los datos"]);
+        }
     }
 
     public function buscarProducto($idPetitorio, $sku, $idCanalVenta) {
@@ -43,8 +56,8 @@ class ProductController {
         Logger::logGlobal("📦 Consultando producto idPetitorio $idPetitorio");
         Logger::logGlobal("📦 Consultando producto idCanalVenta $idCanalVenta");
 
-        if((is_null($idPetitorio) || $idPetitorio == 'null')
-        && (is_null($idCanalVenta) || $idCanalVenta == 'null')
+        if ((is_null($idPetitorio) || $idPetitorio === 'null')
+            && (is_null($idCanalVenta) || $idCanalVenta === 'null')
         ) {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.idClasificacionValor, 
                             sp.precioBase, sppc.precioNormal, sppc.idCanalVenta,
@@ -64,8 +77,8 @@ class ProductController {
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$sku]);
             $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else if ((!is_null($idCanalVenta) || $idCanalVenta != 'null') &&
-        (is_null($idPetitorio) || $idPetitorio == 'null')
+        } else if ((!is_null($idCanalVenta) || $idCanalVenta !== 'null')
+            && (is_null($idPetitorio) || $idPetitorio === 'null')
         ) {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.idClasificacionValor,
                     sp.precioBase, sppc.precioNormal, sppc.idCanalVenta,
@@ -106,8 +119,7 @@ class ProductController {
             $productos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
         }
 
-
-        if ($productos && count($productos) > 0) {
+        if (!empty($productos)) {
             echo json_encode($productos);
         } else {
             http_response_code(404);
@@ -125,19 +137,28 @@ class ProductController {
             Logger::logGlobal("El producto es " . json_encode($producto));
 
             if (!$producto) {
+                // Producto no existe → crear/vincular mínimo nombre y presentaciones si corresponde
                 $this->actualizarSoloNombreYCrearVinculos($data);
-            } elseif ($data['idPetitorio']) {
-                $this->actualizarConPetitorio($data, $producto);
             } else {
-                $this->actualizarSinPetitorio($data);
+                // Producto existe → siempre actualizamos nombreComercial e idClasificacionValor (si vienen)
+                $this->actualizarNombreYClasificacion($data, $producto['idProducto']);
+
+                // Después procesamos petitorio o no
+                if (!empty($data['idPetitorio'])) {
+                    $this->actualizarConPetitorio($data, $producto);
+                } else {
+                    $this->actualizarSinPetitorio($data);
+                }
             }
-            if($data['idCanalVenta']) {
+
+            // Actualizar beneficios si viene idCanalVenta
+            if (!empty($data['idCanalVenta'])) {
                 $this->actualizarBeneficios($data);
             }
-            
+
             $this->conn->commit();
             echo json_encode(["mensaje" => "Producto actualizado"]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->conn->rollBack();
             Logger::logGlobal("❌ Error al actualizar producto: " . $e->getMessage());
             http_response_code(500);
@@ -165,8 +186,17 @@ class ProductController {
         return $productos;
     }
 
+    /**
+     * Obtiene producto según data.
+     * Maneja caso con petitorio o sin petitorio.
+     */
     private function obtenerProducto($data) {
-        if (!$data['idPetitorio']) {
+        // Evitar notices
+        $hasPetitorio = !empty($data['idPetitorio']);
+        $idProducto = $data['idProducto'] ?? null;
+        $idCanalVenta = $data['idCanalVenta'] ?? null;
+
+        if (!$hasPetitorio) {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.precioBase, 
                             sppc.precioNormal, spcb.porcentajeDescuento, spcb.montoDescuentoMinimo, sppc.idPresentacion,
                             spcb.porcentajeDescuentoAnterior, spcb.montoDescuentoMinimoAnterior
@@ -175,7 +205,7 @@ class ProductController {
                       LEFT JOIN SALES_PRODUCTO_CANAL_BENEFICIO spcb 
                         ON spcb.idProducto = sp.idProducto AND spcb.idCanalVenta = sppc.idCanalVenta
                       WHERE sp.idProducto = ? AND sppc.idCanalVenta = ?";
-            $params = [$data['idProducto'], $data['idCanalVenta']];
+            $params = [$idProducto, $idCanalVenta];
         } else {
             $query = "SELECT sp.idProducto, sp.skuWMS, sp.nombreComercial, sp.precioBase, 
                             sppc.precioNormal, spcb.porcentajeDescuento, spcb.montoDescuentoMinimo, sppc.idPresentacion,
@@ -186,7 +216,7 @@ class ProductController {
                         ON spcb.idProducto = sp.idProducto AND spcb.idCanalVenta = sppc.idCanalVenta
                       LEFT JOIN SALES_PRODUCTO_PRESENTACION_PETITORIO x ON x.idProducto = sp.idProducto
                       WHERE sp.idProducto = ? AND x.idPetitorio = ?";
-            $params = [$data['idProducto'], $data['idPetitorio']];
+            $params = [$idProducto, $data['idPetitorio']];
         }
 
         Logger::logGlobal("El query es $query");
@@ -195,25 +225,50 @@ class ProductController {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Actualiza nombreComercial e idClasificacionValor para producto existente.
+     * Si el valor no viene, mantiene el existente (usando IFNULL).
+     */
+    private function actualizarNombreYClasificacion($data, $idProducto) {
+        if (empty($idProducto)) return;
+
+        $sql = "UPDATE SALES_PRODUCTO
+                SET nombreComercial = IFNULL(?, nombreComercial),
+                    idClasificacionValor = IFNULL(?, idClasificacionValor),
+                    fechaModificacion = NOW()
+                WHERE idProducto = ?";
+
+        $nombre = $data['nombreComercial'] ?? null;
+        $idClas = $data['idClasificacionValor'] ?? null;
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$nombre, $idClas, $idProducto]);
+
+        Logger::logGlobal("✅ Nombre y clasificación del producto actualizados para idProducto=$idProducto");
+    }
+
     private function actualizarSinPetitorio($data) {
-        if (!empty($data['nombreComercial'])) {
-            $query = "UPDATE SALES_PRODUCTO SET nombreComercial = IFNULL(?, nombreComercial) WHERE idProducto = ?";
-            $this->conn->prepare($query)->execute([$data['nombreComercial'], $data['idProducto']]);
+        // Actualizar nombreComercial si viene (redundante con actualizarNombreYClasificacion pero seguro)
+        if (!empty($data['nombreComercial']) || isset($data['idClasificacionValor'])) {
+            $this->actualizarNombreYClasificacion($data, $data['idProducto'] ?? null);
         }
 
+        // Actualizar precio en presentacion canal
         $query = "UPDATE SALES_PRODUCTO_PRESENTACION_CANAL 
                    SET precioNormal = IFNULL(?, precioNormal)
-                 WHERE idProducto = ? AND idCanalVenta = ?";
+                 WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoPresentacionCanal = 'ACT'";
         $this->conn->prepare($query)->execute([
-            $data['precio'],
-            $data['idProducto'],
-            $data['idCanalVenta']
+            $data['precio'] ?? null,
+            $data['idProducto'] ?? null,
+            $data['idCanalVenta'] ?? null
         ]);
     }
 
     private function actualizarConPetitorio($data, $producto) {
-
-        $this->actualizarNombreComercial($data);
+        // Actualizar nombre/comercial/clasificacion si vienen
+        if (!empty($data['nombreComercial']) || isset($data['idClasificacionValor'])) {
+            $this->actualizarNombreYClasificacion($data, $data['idProducto'] ?? $producto['idProducto'] ?? null);
+        }
 
         $query = "SELECT idProducto FROM SALES_PRODUCTO_PRESENTACION_PETITORIO WHERE idPetitorio = ? AND idProducto = ?";
         $stmt = $this->conn->prepare($query);
@@ -224,7 +279,7 @@ class ProductController {
             $query = "UPDATE SALES_PRODUCTO_PRESENTACION_PETITORIO 
                         SET precioNormal = IFNULL(?, precioNormal), precioRimac = IFNULL(?, precioRimac), stsPetitorioProductoPresentacion = 'ACT'
                       WHERE idPetitorio = ? AND idProducto = ?";
-            $params = [$data['precio'], $data['precio'], $data['idPetitorio'], $data['idProducto']];
+            $params = [$data['precio'] ?? null, $data['precio'] ?? null, $data['idPetitorio'], $data['idProducto']];
         } else {
             $query = "INSERT INTO SALES_PRODUCTO_PRESENTACION_PETITORIO 
                         (idProducto, idPetitorio, idPresentacion, sku, precioNormal, precioRimac, stsPetitorioProductoPresentacion) 
@@ -232,10 +287,10 @@ class ProductController {
             $params = [
                 $data['idProducto'],
                 $data['idPetitorio'],
-                $producto['idPresentacion'],
-                $data['sku'],
-                $data['precio'],
-                $data['precio']
+                $producto['idPresentacion'] ?? null,
+                $data['sku'] ?? null,
+                $data['precio'] ?? null,
+                $data['precio'] ?? null
             ];
         }
 
@@ -243,37 +298,45 @@ class ProductController {
     }
 
     private function actualizarNombreComercial($data) {
-        if (!empty($data['nombreComercial'])) {
-            $query = "UPDATE SALES_PRODUCTO SET 
+        // Mantengo por compatibilidad: si llega idProducto se actualiza
+        if (empty($data['idProducto'])) return;
+
+        $query = "UPDATE SALES_PRODUCTO SET 
                     nombreComercial = IFNULL(?, nombreComercial),
                     idClasificacionValor = IFNULL(?, idClasificacionValor)
-                    WHERE idProducto = ?";
-            $this->conn->prepare($query)->execute([$data['nombreComercial'], $data['idProducto']]);
-        }
+                  WHERE idProducto = ?";
+        $nombre = $data['nombreComercial'] ?? null;
+        $idClas = $data['idClasificacionValor'] ?? null;
+        $this->conn->prepare($query)->execute([$nombre, $idClas, $data['idProducto']]);
     }
 
     private function actualizarSoloNombreYCrearVinculos($data) {
+        // Si viene idProducto, intentamos actualizar nombre/comercial/clasificacion
+        if (!empty($data['idProducto']) && (!empty($data['nombreComercial']) || isset($data['idClasificacionValor']))) {
+            $this->actualizarNombreComercial($data);
+        }
 
-        $this->actualizarNombreComercial($data);
-        if (!$data['sku'] || !$data['precio']) {
+        // Si no tenemos SKU o precio no podemos crear vínculos de presentaciones -> retorno temprano
+        if (empty($data['sku']) || !isset($data['precio'])) {
             echo json_encode(["mensaje" => "Producto actualizado"]);
             return;
         }
 
+        // Limpiar temporal y preparar datos
         $this->conn->exec("DELETE FROM SALES_DATA_PRODUCTO_PETITORIO_TEMPORAL");
 
         $query = "INSERT INTO SALES_DATA_PRODUCTO_PETITORIO_TEMPORAL (sku, descripcionProducto, precioNormal, precioRimac) VALUES (?, NULL, ?, ?)";
         $this->conn->prepare($query)->execute([$data['sku'], $data['precio'], $data['precio']]);
 
         $productoCanal = null;
-        if ($data['idCanalVenta']) {
+        if (!empty($data['idCanalVenta']) && !empty($data['idProducto'])) {
             $query = "SELECT idProducto FROM SALES_PRODUCTO_CANAL WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoCanal = 'ACT'";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$data['idProducto'], $data['idCanalVenta']]);
             $productoCanal = $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
-        if (!$productoCanal && $data['idCanalVenta']) {
+        if (!$productoCanal && !empty($data['idCanalVenta'])) {
             $query = "INSERT INTO SALES_PRODUCTO_CANAL 
                         (idProducto, idCanalVenta, unidadMinimaVenta, stsProductoCanal)
                       SELECT sp.idProducto, ?, NULL, 'ACT'
@@ -283,7 +346,7 @@ class ProductController {
             $this->conn->prepare($query)->execute([$data['idCanalVenta']]);
         }
 
-        if (!$productoCanal && $data['idCanalVenta']) {
+        if (!$productoCanal && !empty($data['idCanalVenta'])) {
             $query = "INSERT INTO SALES_PRODUCTO_PRESENTACION_CANAL
                         (idProducto, idCanalVenta, idPresentacion, sku, precioNormal, stsProductoPresentacionCanal, tipoDispensacion)
                     SELECT sppc.idProducto, ?, sppc.idPresentacion, sppc.sku, sd.precioNormal, sppc.stsProductoPresentacionCanal, sppc.tipoDispensacion
@@ -291,14 +354,15 @@ class ProductController {
                     JOIN SALES_PRODUCTO_PRESENTACION_CANAL sppc ON sd.sku = sppc.sku
                     WHERE sppc.idCanalVenta = 46 AND sppc.stsProductoPresentacionCanal = 'ACT'";
             $this->conn->prepare($query)->execute([$data['idCanalVenta']]);
-        } else if ($data['idCanalVenta']) {
+        } else if (!empty($data['idCanalVenta'])) {
             $query = "UPDATE SALES_PRODUCTO_PRESENTACION_CANAL
                         SET precioNormal = IFNULL(?, precioNormal)
                     WHERE idCanalVenta = ? AND idProducto = ?
                     AND stsProductoPresentacionCanal = 'ACT'";
-            $this->conn->prepare($query)->execute([$data['precio'],$data['idCanalVenta'], $data['idProducto']]);
+            $this->conn->prepare($query)->execute([$data['precio'] ?? null, $data['idCanalVenta'], $data['idProducto'] ?? null]);
         }
-        if ($data['idPetitorio']) {
+
+        if (!empty($data['idPetitorio'])) {
             $query = "INSERT INTO SALES_PRODUCTO_PRESENTACION_PETITORIO
                         (idProducto, idPetitorio, idPresentacion, sku, precioNormal, precioRimac, stsPetitorioProductoPresentacion)
                       SELECT sppc.idProducto, ?, sppc.idPresentacion, sppc.sku, sd.precioNormal, sd.precioNormal, sppc.stsProductoPresentacionCanal
@@ -310,10 +374,15 @@ class ProductController {
     }
 
     private function actualizarBeneficios($data) {
-        $idProducto = $data['idProducto'];
-        $idCanal = $data['idCanalVenta'];
-        $porc = $data['porcentajeDescuento'] ?? 0;
-        $monto = $data['montoDescuentoMinimo'] ?? 0;
+        $idProducto = $data['idProducto'] ?? null;
+        $idCanal = $data['idCanalVenta'] ?? null;
+        $porc = isset($data['porcentajeDescuento']) ? (float)$data['porcentajeDescuento'] : 0;
+        $monto = isset($data['montoDescuentoMinimo']) ? (float)$data['montoDescuentoMinimo'] : 0;
+
+        if (empty($idProducto) || empty($idCanal)) {
+            Logger::logGlobal("🔔 actualizarBeneficios: faltan idProducto o idCanalVenta");
+            return;
+        }
 
         // Buscar si ya existe el registro activo
         $query = "SELECT porcentajeDescuento, montoDescuentoMinimo 
