@@ -89,6 +89,7 @@ class ProductController {
             LEFT JOIN SALES_PRODUCTO_PRESENTACION_PETITORIO sppp
             ON sppp.idProducto = sp.idProducto
             AND sppp.idPetitorio = ?
+            AND sppp.stsPetitorioProductoPresentacion = 'ACT'
             LEFT JOIN SALES_PETITORIO spt 
             ON spt.idPetitorio = sppp.idPetitorio
             WHERE sp.skuWMS = ?";
@@ -215,7 +216,7 @@ class ProductController {
 
         if ($existe) {
             $query = "UPDATE SALES_PRODUCTO_PRESENTACION_PETITORIO 
-                        SET precioNormal = IFNULL(?, precioNormal), precioRimac = IFNULL(?, precioRimac)
+                        SET precioNormal = IFNULL(?, precioNormal), precioRimac = IFNULL(?, precioRimac), stsPetitorioProductoPresentacion = 'ACT'
                       WHERE idPetitorio = ? AND idProducto = ?";
             $params = [$data['precio'], $data['precio'], $data['idPetitorio'], $data['idProducto']];
         } else {
