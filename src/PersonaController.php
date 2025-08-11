@@ -45,6 +45,52 @@ class PersonaController {
         }
     }
 
+    public function buscarCuenta($correoCuenta) {
+        Logger::logGlobal("📦 correo cuenta ---> $correoCuenta");
+
+        $query = "SELECT sp.idPersona, sp.nombre, sp.apellidos, sp.apePaterno, 
+                sp.apeMaterno, sp.idTipoDocumentoIdentidad, sp.numeroDocumento
+                FROM SALES_USUARIO_LOGIN spe
+                INNER JOIN SALES_PERSONA sp ON sp.idPersona = spe.idPersona 
+                AND sp.indEliminado = 'N'
+                WHERE spe.usuarioLogin = ?";
+
+        Logger::logGlobal("El query es $query");
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$correoCuenta]);
+        $persona = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($persona) {
+            echo json_encode($persona);
+        } else {
+            http_response_code(404);
+            echo json_encode(["mensaje" => "Cuenta no encontrada"]);
+        }
+    }
+
+    public function listadoAgentes($correoCuenta) {
+        Logger::logGlobal("📦 correo cuenta ---> $correoCuenta");
+
+        $query = "SELECT sp.idPersona, sp.nombre, sp.apellidos, sp.apePaterno, 
+                sp.apeMaterno, sp.idTipoDocumentoIdentidad, sp.numeroDocumento
+                FROM SALES_USUARIO_LOGIN spe
+                INNER JOIN SALES_PERSONA sp ON sp.idPersona = spe.idPersona 
+                AND sp.indEliminado = 'N'
+                WHERE spe.usuarioLogin = ?";
+
+        Logger::logGlobal("El query es $query");
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$correoCuenta]);
+        $persona = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($persona) {
+            echo json_encode($persona);
+        } else {
+            http_response_code(404);
+            echo json_encode(["mensaje" => "Cuenta no encontrada"]);
+        }
+    }
+
     public function actualizarPersona($data) {
         Logger::logGlobal("✏️ Actualizando persona: " . json_encode($data));
 
