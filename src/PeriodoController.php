@@ -49,13 +49,22 @@ class PeriodoController {
         $stmt3->execute();
         $rangosHorarios = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
+        $query4= "select idPagoEstado, descripcion, stsPagoEstado from SALES_PAGO_ESTADO  
+                WHERE stsPagoEstado = :estado";
+        Logger::logGlobal("El query es: $query4");
+        $stmt4 = $this->conn->prepare($query4);
+        $stmt4->bindParam(':estado', $estado);
+        $stmt4->execute();
+        $estadoPago = $stmt4->fetchAll(PDO::FETCH_ASSOC);
+
 
         // Salida JSON
         echo json_encode([
             'periodos' => $periodos,
             'estados'  => $estados,
             'estadosPedidos' => $estadosPedidos,
-            'rangosHorarios' => $rangosHorarios
+            'rangosHorarios' => $rangosHorarios,
+            'estadosPago' => $estadoPago
         ]);
     }
 
@@ -68,7 +77,7 @@ class PeriodoController {
                         sp.nombresEnvio , sp.apellidosEnvio , sp.numeroDocumentoEnvio , sp.idTipoDocumentoEnvio,
                         stdi.descripcion as descripcionDocumento, sp.idPedidoEstado, sp.canalNumeroPedido,
                         sp.fechaEnvio , sp.fechaEnvioFin , sp.idRangoHorario , sp.descripcionRangoHorario,
-                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio
+                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado
                         FROM SALES_PEDIDO sp
                         LEFT JOIN SALES_MOTORIZADO sm 
                         ON sm.idMotorizado = sp.idMotorizado 
@@ -124,29 +133,34 @@ class PeriodoController {
         if($data['tipo'] === 'SOLICITUD') {
             $query = "UPDATE SALES_SOLICITUD SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo) ,
             idSolicitudEstado = IFNULL(?, idSolicitudEstado),
-            canalNumeroSolicitud = IFNULL(? , canalNumeroSolicitud)
+            canalNumeroSolicitud = IFNULL(? , canalNumeroSolicitud),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
             WHERE idSolicitud = ?";
-            $stmt->execute([$data['idAfiliadoPeriodo'], $data['idEstadoSolicitud'], $data['numeroCanal'], $data['id']]);
+            $stmt->execute([$data['idAfiliadoPeriodo'], $data['idEstadoSolicitud'], $data['numeroCanal'], $data['idCanalVenta'], $data['id']]);
         } else {
             $query = "UPDATE SALES_PEDIDO SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo),
             idPedidoEstado = IFNULL(? , idPedidoEstado),
             canalNumeroPedido= IFNULL(? ,canalNumeroPedido),
+            idPagoEstado=  IFNULL(?, idPagoEstado),
             descripcionRangoHorario= IFNULL(? ,descripcionRangoHorario),
             idRangoHorario= IFNULL(? ,idRangoHorario),
             fechaEnvio= IFNULL(? ,fechaEnvio),
             fechaEnvioFin= IFNULL(? ,fechaEnvioFin),
-            idTipoEnvio = IFNULL(? ,idTipoEnvio)
+            idTipoEnvio = IFNULL(? ,idTipoEnvio),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
             WHERE idPedido = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([
                 $data['idAfiliadoPeriodo'],
                 $data['idEstadoPedido'], 
                 $data['numeroCanal'], 
+                $data['idPagoEstado'], 
                 $data['descripcionRangoHorario'],
                 $data['idRangoHorario'],
                 $data['fechaEnvio'],
                 $data['fechaEnvioFin'],
                 $data['idTipoEnvio'],
+                $data['idCanalVenta'],
                 $data['id']
             ]);
         }
@@ -193,11 +207,13 @@ class PeriodoController {
             $query1 = "UPDATE SALES_PEDIDO SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo),
             idPedidoEstado = IFNULL(? , idPedidoEstado),
             canalNumeroPedido= IFNULL(? ,canalNumeroPedido),
+            idPagoEstado=  IFNULL(?, idPagoEstado),
             descripcionRangoHorario= IFNULL(? ,descripcionRangoHorario),
             idRangoHorario= IFNULL(? ,idRangoHorario),
             fechaEnvio= IFNULL(? ,fechaEnvio),
             fechaEnvioFin= IFNULL(? ,fechaEnvioFin),
-            idTipoEnvio = IFNULL(? ,idTipoEnvio)
+            idTipoEnvio = IFNULL(? ,idTipoEnvio),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
             WHERE idPedido = ?";
             Logger::logGlobal("query $query1");
             $stmt1 = $this->conn->prepare($query1);
@@ -205,11 +221,13 @@ class PeriodoController {
                 $data['idAfiliadoPeriodo'],
                 $data['idEstadoPedido'], 
                 $data['numeroCanal'], 
+                $data['idPagoEstado'], 
                 $data['descripcionRangoHorario'],
                 $data['idRangoHorario'],
                 $data['fechaEnvio'],
                 $data['fechaEnvioFin'],
                 $data['idTipoEnvio'],
+                $data['idCanalVenta'],
                 $data['id']
             ]);
 
