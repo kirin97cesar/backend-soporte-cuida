@@ -197,11 +197,18 @@ class PeriodoController {
         if($data['tipo'] === 'SOLICITUD') {
             $query1 = "UPDATE SALES_SOLICITUD SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo) ,
             idSolicitudEstado = IFNULL(?, idSolicitudEstado),
-            canalNumeroSolicitud = IFNULL(? , canalNumeroSolicitud)
+            canalNumeroSolicitud = IFNULL(? , canalNumeroSolicitud),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
             WHERE idSolicitud = ?";
             Logger::logGlobal("query $query1");
             $stmt1 = $this->conn->prepare($query1);
-            $stmt1->execute([$data['idAfiliadoPeriodo'], $data['idEstadoSolicitud'], $data['numeroCanal'], $data['id']]);
+            $stmt1->execute([
+                $data['idAfiliadoPeriodo'],
+                $data['idEstadoSolicitud'],
+                $data['numeroCanal'], 
+                $data['idCanalVenta'], 
+                $data['id']
+            ]);
             
         } else {
             $query1 = "UPDATE SALES_PEDIDO SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo),

@@ -3648,3 +3648,309 @@
                 WHERE stsRangoHorario = :estado
 [2025-08-20 19:06:47 UTC-5] El query es: select idPagoEstado, descripcion, stsPagoEstado from SALES_PAGO_ESTADO  
                 WHERE stsPagoEstado = :estado
+[2025-08-20 21:39:11 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:11 UTC-5] 🧪 path: /persona.php 
+[2025-08-20 21:39:11 UTC-5] 🧪 path: /productos.php 
+[2025-08-20 21:39:11 UTC-5] 🧪 ID:  
+[2025-08-20 21:39:11 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:11 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:11 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:11 UTC-5] 🧪 ID:  
+[2025-08-20 21:39:11 UTC-5] 🌐 GET /api/public/productos.php
+[2025-08-20 21:39:11 UTC-5] 🧪 path: /productos.php 
+[2025-08-20 21:39:11 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:11 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:11 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:11 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:12 UTC-5] 📦 Listando canales de venta
+[2025-08-20 21:39:12 UTC-5] 📦 Listando tipos de documento
+[2025-08-20 21:39:12 UTC-5] El query es SELECT idTipoDocumentoIdentidad, descripcion 
+                  FROM SALES_TIPO_DOCUMENTO_IDENTIDAD 
+                  WHERE stsTipoDocumentoIdentidad = ?
+[2025-08-20 21:39:12 UTC-5] 📦 Listando periodos válidos
+[2025-08-20 21:39:12 UTC-5] El query es: SELECT x.idAfiliadoPeriodo, x.descripcion, x.stsAfiliadoPeriodo 
+                FROM db_ventas_logistica.SALES_PEDIDO_AFILIADO_PERIODO x
+                WHERE x.stsAfiliadoPeriodo = :estado
+[2025-08-20 21:39:12 UTC-5] El query es: SELECT idSolicitudEstado, descripcion 
+                FROM SALES_SOLICITUD_ESTADO sse 
+                WHERE stsSolicitudEstado = :estado
+[2025-08-20 21:39:12 UTC-5] El query es: select idPedidoEstado, descripcion from SALES_PEDIDO_ESTADO spe 
+                WHERE stsPedidoEstado = :estado
+[2025-08-20 21:39:12 UTC-5] El query es: select idRangoHorario, idCanalVenta, descripcion, tipoRangoHorario from SALES_RANGO_HORARIO srh 
+                WHERE stsRangoHorario = :estado
+[2025-08-20 21:39:12 UTC-5] El query es: select idPagoEstado, descripcion, stsPagoEstado from SALES_PAGO_ESTADO  
+                WHERE stsPagoEstado = :estado
+[2025-08-20 21:39:13 UTC-5] 🧪 path: /persona.php 
+[2025-08-20 21:39:13 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:13 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:13 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:13 UTC-5] 🧪 ID:  
+[2025-08-20 21:39:13 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:13 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:13 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:13 UTC-5] 🧪 path: /productos.php 
+[2025-08-20 21:39:13 UTC-5] 🧪 ID:  
+[2025-08-20 21:39:13 UTC-5] 🌐 GET /api/public/productos.php
+[2025-08-20 21:39:13 UTC-5] 🧪 path: /productos.php 
+[2025-08-20 21:39:13 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:13 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:13 UTC-5] 📦 Listando tipos de documento
+[2025-08-20 21:39:13 UTC-5] El query es SELECT idTipoDocumentoIdentidad, descripcion 
+                  FROM SALES_TIPO_DOCUMENTO_IDENTIDAD 
+                  WHERE stsTipoDocumentoIdentidad = ?
+[2025-08-20 21:39:13 UTC-5] 📦 Listando periodos válidos
+[2025-08-20 21:39:13 UTC-5] El query es: SELECT x.idAfiliadoPeriodo, x.descripcion, x.stsAfiliadoPeriodo 
+                FROM db_ventas_logistica.SALES_PEDIDO_AFILIADO_PERIODO x
+                WHERE x.stsAfiliadoPeriodo = :estado
+[2025-08-20 21:39:13 UTC-5] 📦 Listando canales de venta
+[2025-08-20 21:39:13 UTC-5] El query es: SELECT idSolicitudEstado, descripcion 
+                FROM SALES_SOLICITUD_ESTADO sse 
+                WHERE stsSolicitudEstado = :estado
+[2025-08-20 21:39:13 UTC-5] El query es: select idPedidoEstado, descripcion from SALES_PEDIDO_ESTADO spe 
+                WHERE stsPedidoEstado = :estado
+[2025-08-20 21:39:13 UTC-5] El query es: select idRangoHorario, idCanalVenta, descripcion, tipoRangoHorario from SALES_RANGO_HORARIO srh 
+                WHERE stsRangoHorario = :estado
+[2025-08-20 21:39:13 UTC-5] El query es: select idPagoEstado, descripcion, stsPagoEstado from SALES_PAGO_ESTADO  
+                WHERE stsPagoEstado = :estado
+[2025-08-20 21:39:22 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:22 UTC-5] 🧪 ID: null 
+[2025-08-20 21:39:22 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:22 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:22 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:22 UTC-5] 📦 buscarPedidoPorPeriodo ---> P-123459
+[2025-08-20 21:39:22 UTC-5] 📦 id ---> null
+[2025-08-20 21:39:22 UTC-5] El query es SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idSolicitud, sp.numeroSolicitud as numero,
+                        sds.nombresEnvio, sds.apellidosEnvio, sds.numeroDocumentoEnvio,
+                        sds.idTipoDocumentoEnvio, stdi.descripcion as descripcionDocumento, sp.idSolicitudEstado,
+                        sp.canalNumeroSolicitud, sp.idCanalVenta
+                        FROM SALES_SOLICITUD sp
+                        LEFT JOIN SALES_DETALLE_SOLICITUD sds 
+						ON sds.idSolicitud = sp.idSolicitud 
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sds.idTipoDocumentoEnvio
+                        LEFT JOIN SALES_PEDIDO_AFILIADO_PERIODO spap 
+                        ON sp.idAfiliadoPeriodo = spap.idAfiliadoPeriodo 
+                        WHERE sp.numeroSolicitud = ?
+[2025-08-20 21:39:31 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:39:31 UTC-5] 🧪 ID:  
+[2025-08-20 21:39:31 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:39:31 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:31 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:32 UTC-5] ✏️ Actualizando periodo : {"id":"129160","tipo":"SOLICITUD","idAfiliadoPeriodo":null,"nombresEnvio":"BRYANA VALENTINA","apellidosEnvio":"VELA HUBY","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"79235720","idEstadoSolicitud":"4","idEstadoPedido":"1","numeroCanal":null,"idPagoEstado":"1","idCanalVenta":"46"}
+[2025-08-20 21:39:32 UTC-5] query UPDATE SALES_SOLICITUD SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo) ,
+            idSolicitudEstado = IFNULL(?, idSolicitudEstado),
+            canalNumeroSolicitud = IFNULL(? , canalNumeroSolicitud),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
+            WHERE idSolicitud = ?
+[2025-08-20 21:39:32 UTC-5] ✏️ Actualizando nombres {"id":"129160","tipo":"SOLICITUD","idAfiliadoPeriodo":null,"nombresEnvio":"BRYANA VALENTINA","apellidosEnvio":"VELA HUBY","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"79235720","idEstadoSolicitud":"4","idEstadoPedido":"1","numeroCanal":null,"idPagoEstado":"1","idCanalVenta":"46"}
+[2025-08-20 21:39:32 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:32 UTC-5] 🧪 ID: 129160 
+[2025-08-20 21:39:32 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:32 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:32 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:33 UTC-5] 📦 buscarPedidoPorPeriodo ---> P-123459
+[2025-08-20 21:39:33 UTC-5] 📦 id ---> 129160
+[2025-08-20 21:39:33 UTC-5] El query es SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idSolicitud, sp.numeroSolicitud as numero,
+                        sds.nombresEnvio, sds.apellidosEnvio, sds.numeroDocumentoEnvio,
+                        sds.idTipoDocumentoEnvio, stdi.descripcion as descripcionDocumento, sp.idSolicitudEstado,
+                        sp.canalNumeroSolicitud, sp.idCanalVenta
+                        FROM SALES_SOLICITUD sp
+                        LEFT JOIN SALES_DETALLE_SOLICITUD sds 
+						ON sds.idSolicitud = sp.idSolicitud 
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sds.idTipoDocumentoEnvio
+                        LEFT JOIN SALES_PEDIDO_AFILIADO_PERIODO spap 
+                        ON sp.idAfiliadoPeriodo = spap.idAfiliadoPeriodo 
+                        WHERE sp.idSolicitud = ?
+[2025-08-20 21:39:33 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:39:33 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:39:33 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:33 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:33 UTC-5] 🧪 email: paulo.carbajal@cuida.pe
+[2025-08-20 21:39:33 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:39:33 UTC-5] 📦 email paulo.carbajal@cuida.pe
+[2025-08-20 21:39:33 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:39:33 UTC-5] El query es: INSERT INTO SALES_SOPORTES(tipo, payload, usuario, fechaCreacion) VALUES (?, ?, ?, NOW())
+[2025-08-20 21:39:38 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:39:38 UTC-5] 🧪 ID:  
+[2025-08-20 21:39:38 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:39:38 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:38 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:39 UTC-5] ✏️ Actualizando periodo : {"id":"129160","tipo":"SOLICITUD","idAfiliadoPeriodo":null,"nombresEnvio":"BRYANA VALENTINA","apellidosEnvio":"VELA HUBY","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"79235720","idEstadoSolicitud":"4","idEstadoPedido":"1","numeroCanal":null,"idPagoEstado":"1","idCanalVenta":"45"}
+[2025-08-20 21:39:39 UTC-5] query UPDATE SALES_SOLICITUD SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo) ,
+            idSolicitudEstado = IFNULL(?, idSolicitudEstado),
+            canalNumeroSolicitud = IFNULL(? , canalNumeroSolicitud),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
+            WHERE idSolicitud = ?
+[2025-08-20 21:39:39 UTC-5] ✏️ Actualizando nombres {"id":"129160","tipo":"SOLICITUD","idAfiliadoPeriodo":null,"nombresEnvio":"BRYANA VALENTINA","apellidosEnvio":"VELA HUBY","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"79235720","idEstadoSolicitud":"4","idEstadoPedido":"1","numeroCanal":null,"idPagoEstado":"1","idCanalVenta":"45"}
+[2025-08-20 21:39:39 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:39 UTC-5] 🧪 ID: 129160 
+[2025-08-20 21:39:39 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:39 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:39 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:39 UTC-5] 📦 buscarPedidoPorPeriodo ---> P-123459
+[2025-08-20 21:39:39 UTC-5] 📦 id ---> 129160
+[2025-08-20 21:39:39 UTC-5] El query es SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idSolicitud, sp.numeroSolicitud as numero,
+                        sds.nombresEnvio, sds.apellidosEnvio, sds.numeroDocumentoEnvio,
+                        sds.idTipoDocumentoEnvio, stdi.descripcion as descripcionDocumento, sp.idSolicitudEstado,
+                        sp.canalNumeroSolicitud, sp.idCanalVenta
+                        FROM SALES_SOLICITUD sp
+                        LEFT JOIN SALES_DETALLE_SOLICITUD sds 
+						ON sds.idSolicitud = sp.idSolicitud 
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sds.idTipoDocumentoEnvio
+                        LEFT JOIN SALES_PEDIDO_AFILIADO_PERIODO spap 
+                        ON sp.idAfiliadoPeriodo = spap.idAfiliadoPeriodo 
+                        WHERE sp.idSolicitud = ?
+[2025-08-20 21:39:39 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:39:39 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:39:39 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:39 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:39 UTC-5] 🧪 email: paulo.carbajal@cuida.pe
+[2025-08-20 21:39:40 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:39:40 UTC-5] 📦 email paulo.carbajal@cuida.pe
+[2025-08-20 21:39:40 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:39:40 UTC-5] El query es: INSERT INTO SALES_SOPORTES(tipo, payload, usuario, fechaCreacion) VALUES (?, ?, ?, NOW())
+[2025-08-20 21:39:50 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:50 UTC-5] 🧪 ID: null 
+[2025-08-20 21:39:50 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:50 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:50 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:51 UTC-5] 📦 buscarPedidoPorPeriodo ---> AMB-1234
+[2025-08-20 21:39:51 UTC-5] 📦 id ---> null
+[2025-08-20 21:39:51 UTC-5] El query es SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idSolicitud, sp.numeroSolicitud as numero,
+                        sds.nombresEnvio, sds.apellidosEnvio, sds.numeroDocumentoEnvio,
+                        sds.idTipoDocumentoEnvio, stdi.descripcion as descripcionDocumento, sp.idSolicitudEstado,
+                        sp.canalNumeroSolicitud, sp.idCanalVenta
+                        FROM SALES_SOLICITUD sp
+                        LEFT JOIN SALES_DETALLE_SOLICITUD sds 
+						ON sds.idSolicitud = sp.idSolicitud 
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sds.idTipoDocumentoEnvio
+                        LEFT JOIN SALES_PEDIDO_AFILIADO_PERIODO spap 
+                        ON sp.idAfiliadoPeriodo = spap.idAfiliadoPeriodo 
+                        WHERE sp.numeroSolicitud = ?
+[2025-08-20 21:39:56 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:56 UTC-5] 🧪 ID: null 
+[2025-08-20 21:39:56 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:39:56 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:39:56 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:39:56 UTC-5] 📦 buscarPedidoPorPeriodo ---> AMB-1234
+[2025-08-20 21:39:56 UTC-5] 📦 id ---> null
+[2025-08-20 21:39:56 UTC-5] El query es SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idPedido, sp.numeroPedido as numero,
+                        sp.nombresEnvio , sp.apellidosEnvio , sp.numeroDocumentoEnvio , sp.idTipoDocumentoEnvio,
+                        stdi.descripcion as descripcionDocumento, sp.idPedidoEstado, sp.canalNumeroPedido,
+                        sp.fechaEnvio , sp.fechaEnvioFin , sp.idRangoHorario , sp.descripcionRangoHorario,
+                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado
+                        FROM SALES_PEDIDO sp
+                        LEFT JOIN SALES_MOTORIZADO sm 
+                        ON sm.idMotorizado = sp.idMotorizado 
+                        AND sm.stsMotorizado = 'ACT'
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sp.idTipoDocumentoEnvio
+                        LEFT JOIN SALES_PEDIDO_AFILIADO_PERIODO spap 
+                        ON sp.idAfiliadoPeriodo = spap.idAfiliadoPeriodo 
+                        WHERE sp.numeroPedido = ?
+[2025-08-20 21:40:01 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:40:01 UTC-5] 🧪 ID:  
+[2025-08-20 21:40:01 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:40:01 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:40:01 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:40:02 UTC-5] ✏️ Actualizando periodo : {"id":"144699","tipo":"PEDIDO","idAfiliadoPeriodo":null,"nombresEnvio":"JULIA ESTHER","apellidosEnvio":"ZANATTA MALDONADO","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"08270690","idEstadoSolicitud":"4","idEstadoPedido":"5","numeroCanal":"0021733867","idPagoEstado":"2","idCanalVenta":"72"}
+[2025-08-20 21:40:02 UTC-5] query UPDATE SALES_PEDIDO SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo),
+            idPedidoEstado = IFNULL(? , idPedidoEstado),
+            canalNumeroPedido= IFNULL(? ,canalNumeroPedido),
+            idPagoEstado=  IFNULL(?, idPagoEstado),
+            descripcionRangoHorario= IFNULL(? ,descripcionRangoHorario),
+            idRangoHorario= IFNULL(? ,idRangoHorario),
+            fechaEnvio= IFNULL(? ,fechaEnvio),
+            fechaEnvioFin= IFNULL(? ,fechaEnvioFin),
+            idTipoEnvio = IFNULL(? ,idTipoEnvio),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
+            WHERE idPedido = ?
+[2025-08-20 21:40:02 UTC-5] ✏️ Actualizando nombres {"id":"144699","tipo":"PEDIDO","idAfiliadoPeriodo":null,"nombresEnvio":"JULIA ESTHER","apellidosEnvio":"ZANATTA MALDONADO","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"08270690","idEstadoSolicitud":"4","idEstadoPedido":"5","numeroCanal":"0021733867","idPagoEstado":"2","idCanalVenta":"72"}
+[2025-08-20 21:40:02 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:40:02 UTC-5] 🧪 ID: 144699 
+[2025-08-20 21:40:02 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:40:02 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:40:02 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:40:02 UTC-5] 📦 buscarPedidoPorPeriodo ---> AMB-1234
+[2025-08-20 21:40:02 UTC-5] 📦 id ---> 144699
+[2025-08-20 21:40:02 UTC-5] El query es SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idPedido, sp.numeroPedido as numero,
+                        sp.nombresEnvio , sp.apellidosEnvio , sp.numeroDocumentoEnvio , sp.idTipoDocumentoEnvio,
+                        stdi.descripcion as descripcionDocumento, sp.idPedidoEstado, sp.canalNumeroPedido,
+                        sp.fechaEnvio , sp.fechaEnvioFin , sp.idRangoHorario , sp.descripcionRangoHorario,
+                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado
+                        FROM SALES_PEDIDO sp
+                        LEFT JOIN SALES_MOTORIZADO sm 
+                        ON sm.idMotorizado = sp.idMotorizado 
+                        AND sm.stsMotorizado = 'ACT'
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sp.idTipoDocumentoEnvio
+                        LEFT JOIN SALES_PEDIDO_AFILIADO_PERIODO spap 
+                        ON sp.idAfiliadoPeriodo = spap.idAfiliadoPeriodo 
+                        WHERE sp.idPedido = ?
+[2025-08-20 21:40:03 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:40:03 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:40:03 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:40:03 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:40:03 UTC-5] 🧪 email: paulo.carbajal@cuida.pe
+[2025-08-20 21:40:03 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:40:03 UTC-5] 📦 email paulo.carbajal@cuida.pe
+[2025-08-20 21:40:03 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:40:03 UTC-5] El query es: INSERT INTO SALES_SOPORTES(tipo, payload, usuario, fechaCreacion) VALUES (?, ?, ?, NOW())
+[2025-08-20 21:40:08 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:40:08 UTC-5] 🧪 ID:  
+[2025-08-20 21:40:08 UTC-5] 🧪 path: /api//public/periodos.php 
+[2025-08-20 21:40:08 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:40:08 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:40:09 UTC-5] ✏️ Actualizando periodo : {"id":"144699","tipo":"PEDIDO","idAfiliadoPeriodo":null,"nombresEnvio":"JULIA ESTHER","apellidosEnvio":"ZANATTA MALDONADO","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"08270690","idEstadoSolicitud":"4","idEstadoPedido":"5","numeroCanal":"0021733867","idPagoEstado":"2","idCanalVenta":"73"}
+[2025-08-20 21:40:09 UTC-5] query UPDATE SALES_PEDIDO SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo),
+            idPedidoEstado = IFNULL(? , idPedidoEstado),
+            canalNumeroPedido= IFNULL(? ,canalNumeroPedido),
+            idPagoEstado=  IFNULL(?, idPagoEstado),
+            descripcionRangoHorario= IFNULL(? ,descripcionRangoHorario),
+            idRangoHorario= IFNULL(? ,idRangoHorario),
+            fechaEnvio= IFNULL(? ,fechaEnvio),
+            fechaEnvioFin= IFNULL(? ,fechaEnvioFin),
+            idTipoEnvio = IFNULL(? ,idTipoEnvio),
+            idCanalVenta = IFNULL(? ,idCanalVenta)
+            WHERE idPedido = ?
+[2025-08-20 21:40:09 UTC-5] ✏️ Actualizando nombres {"id":"144699","tipo":"PEDIDO","idAfiliadoPeriodo":null,"nombresEnvio":"JULIA ESTHER","apellidosEnvio":"ZANATTA MALDONADO","idTipoDocumentoEnvio":"2","numeroDocumentoEnvio":"08270690","idEstadoSolicitud":"4","idEstadoPedido":"5","numeroCanal":"0021733867","idPagoEstado":"2","idCanalVenta":"73"}
+[2025-08-20 21:40:09 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:40:09 UTC-5] 🧪 ID: 144699 
+[2025-08-20 21:40:09 UTC-5] 🧪 path: /periodos.php 
+[2025-08-20 21:40:09 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:40:09 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:40:09 UTC-5] 📦 buscarPedidoPorPeriodo ---> AMB-1234
+[2025-08-20 21:40:09 UTC-5] 📦 id ---> 144699
+[2025-08-20 21:40:09 UTC-5] El query es SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idPedido, sp.numeroPedido as numero,
+                        sp.nombresEnvio , sp.apellidosEnvio , sp.numeroDocumentoEnvio , sp.idTipoDocumentoEnvio,
+                        stdi.descripcion as descripcionDocumento, sp.idPedidoEstado, sp.canalNumeroPedido,
+                        sp.fechaEnvio , sp.fechaEnvioFin , sp.idRangoHorario , sp.descripcionRangoHorario,
+                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado
+                        FROM SALES_PEDIDO sp
+                        LEFT JOIN SALES_MOTORIZADO sm 
+                        ON sm.idMotorizado = sp.idMotorizado 
+                        AND sm.stsMotorizado = 'ACT'
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sp.idTipoDocumentoEnvio
+                        LEFT JOIN SALES_PEDIDO_AFILIADO_PERIODO spap 
+                        ON sp.idAfiliadoPeriodo = spap.idAfiliadoPeriodo 
+                        WHERE sp.idPedido = ?
+[2025-08-20 21:40:10 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:40:10 UTC-5] 🧪 path: /soporte.php 
+[2025-08-20 21:40:10 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:40:10 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:40:10 UTC-5] 🧪 email: paulo.carbajal@cuida.pe
+[2025-08-20 21:40:10 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:40:10 UTC-5] 📦 email paulo.carbajal@cuida.pe
+[2025-08-20 21:40:10 UTC-5] 📦 registrarSoporte
+[2025-08-20 21:40:10 UTC-5] El query es: INSERT INTO SALES_SOPORTES(tipo, payload, usuario, fechaCreacion) VALUES (?, ?, ?, NOW())
+[2025-08-20 21:40:32 UTC-5] 🧪 path: /productos.php 
+[2025-08-20 21:40:32 UTC-5] 🧪 ID:  
+[2025-08-20 21:40:32 UTC-5] 🌐 GET /api/public/productos.php
+[2025-08-20 21:40:32 UTC-5] 🧪 path: /productos.php 
+[2025-08-20 21:40:32 UTC-5] 🧪 headers --->: {"Host":"127.0.0.1","Connection":"keep-alive","X-Auth-Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoicGF1bG8uY2FyYmFqYWxAY3VpZGEucGUiLCJleHAiOjE3NTU4MjkzNjJ9.yp3hzs8rFq4Hr_BpwUH8tWVGi9afrYIDu3gPQbh-BOc","Sec-Ch-Ua-Platform":"\"Android\"","User-Agent":"Mozilla\/5.0 (Linux; Android 6.0; Nexus 5 Build\/MRA58N) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/138.0.0.0 Mobile Safari\/537.36","Sec-Ch-Ua":"\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"","Sec-Ch-Ua-Mobile":"?1","Accept":"*\/*","Origin":"http:\/\/127.0.0.1:5500","Sec-Fetch-Site":"same-site","Sec-Fetch-Mode":"cors","Sec-Fetch-Dest":"empty","Referer":"http:\/\/127.0.0.1:5500\/","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"en-GB,en-US;q=0.9,en;q=0.8"}
+[2025-08-20 21:40:32 UTC-5] 🔐 Secret y expiración cargados (expira en 86400s)
+[2025-08-20 21:40:32 UTC-5] 📦 Listando canales de venta
