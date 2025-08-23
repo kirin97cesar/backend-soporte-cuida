@@ -16,14 +16,20 @@ class ProductController {
 
             $queries = [
                 "canales" => "
-                    SELECT scv1.idCanalVenta, scv1.descripcion, scv2.prefijo, 
+                    SELECT 
+                        scv1.idCanalVenta, 
+                        scv1.descripcion, 
+                        scv2.prefijo, 
                         scv2.descripcion AS descripcionCanalPadre,
                         scv2.idCanalVenta AS idCanalVentaPadre 
                     FROM SALES_CANAL_VENTA scv1
                     LEFT JOIN SALES_CANAL_VENTA scv2
-                    ON scv2.idCanalVenta = scv1.idCanalVentaPadre
-                    AND scv1.nivel = 2
+                        ON scv2.idCanalVenta = scv1.idCanalVentaPadre
                     WHERE scv1.stsCanalVenta = 'ACT'
+                    ORDER BY 
+                        COALESCE(scv1.idCanalVentaPadre, scv1.idCanalVenta),
+                        scv1.idCanalVentaPadre IS NULL DESC,                
+                        scv1.descripcion;      
                 ",
                 "convenios" => "
                     SELECT sp.idPetitorio, sp.descripcion 
