@@ -77,8 +77,10 @@ class PeriodoController {
                         sp.nombresEnvio , sp.apellidosEnvio , sp.numeroDocumentoEnvio , sp.idTipoDocumentoEnvio,
                         stdi.descripcion as descripcionDocumento, sp.idPedidoEstado, sp.canalNumeroPedido,
                         sp.fechaEnvio , sp.fechaEnvioFin , sp.idRangoHorario , sp.descripcionRangoHorario,
-                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado
+                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado, spp.orden
                         FROM SALES_PEDIDO sp
+                        LEFT JOIN SALES_PEDIDO_PROGRAMACION spp
+                        ON spp.idPedido = sp.idPedido
                         LEFT JOIN SALES_MOTORIZADO sm 
                         ON sm.idMotorizado = sp.idMotorizado 
                         AND sm.stsMotorizado = 'ACT'
@@ -163,6 +165,16 @@ class PeriodoController {
                 $data['idCanalVenta'],
                 $data['id']
             ]);
+
+            if($data['orden'] && $data['orden'] != 'NULL') {
+                $query2 = "UPDATE SALES_PEDIDO_PROGRAMACION SET orden = IFNULL(?, orden)
+                WHERE idPedido = ?";
+                $stmt2 = $this->conn->prepare($query2);
+                $stmt2->execute([
+                    $data['orden'],
+                    $data['id']
+                ]);
+            }
         }
         Logger::logGlobal("query $query");
         echo json_encode(["mensaje" => "Periodo actualizado"]);
@@ -259,6 +271,16 @@ class PeriodoController {
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['numeroDocumentoEnvio'], $data['idTipoDocumentoEnvio'], $data['id']]);
+
+        if($data['orden'] && $data['orden'] != 'NULL') {
+            $query2 = "UPDATE SALES_PEDIDO_PROGRAMACION SET orden = IFNULL(?, orden)
+            WHERE idPedido = ?";
+            $stmt2 = $this->conn->prepare($query2);
+            $stmt2->execute([
+                $data['orden'],
+                $data['id']
+            ]);
+        }
         echo json_encode(["mensaje" => "Nombres actualizado"]);
     }
 
