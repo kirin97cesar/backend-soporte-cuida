@@ -27,6 +27,12 @@ $path = str_replace($basePath, '', $requestUri);
 
 $numeroDocumento = $_GET['numeroDocumento'] ?? null;
 
+$correoAgente =  $_GET['correoAgente'] ?? null;
+
+$idAgente =  $_GET['idAgente'] ?? null;
+
+$tipoAgente =  $_GET['tipoAgente'] ?? false;
+
 // Obtener método, recurso e ID
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -72,10 +78,28 @@ $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        ($numeroDocumento) ? $controller->buscarCuenta($numeroDocumento) : $controller->listadoAgentes();
+        if ($numeroDocumento) {
+            $controller->buscarCuenta($numeroDocumento);
+        } elseif ($correoAgente) {
+            $controller->buscarAgentexCorreo($correoAgente);
+        } elseif($tipoAgente) {
+            $controller->tiposDeAgente();
+        } else {
+            $controller->listadoAgentes();
+        }
         break;
+    case 'DELETE':
+            $controller->eliminarAgente($idAgente);
+            break;
+    case 'PUT':
+            $controller->actualizarAgente($input);
+            break;
+    case 'POST':
+            $controller->registrarAgente($input);
+            break;
     default:
         http_response_code(405);
-        echo json_encode(["mensaje" => "Método no permitido"]);
+        echo json_encode(["error" => "Method not allowed"]);
         break;
 }
+
