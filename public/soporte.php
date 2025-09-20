@@ -29,7 +29,9 @@ Logger::logGlobal("🧪 path: $path ");
 // Obtener método, recurso e ID
 $method = $_SERVER['REQUEST_METHOD'];
 
-
+$filtroMes = $_GET['mes'] ?? 'todos';
+$filtroUsuario = $_GET['usuario'] ?? 'todos';
+$filtroAnio =  $_GET['anio'] ?? 'todos';
 
 Logger::logGlobal("🧪 path: $path ");
 
@@ -77,6 +79,8 @@ $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'POST': $controller->registrarSoporte($input, $email);
+        break;
+    case 'GET': $controller->obtenerReporte($filtroMes, $filtroAnio, $filtroUsuario );
         break;
     default:
         http_response_code(405);
