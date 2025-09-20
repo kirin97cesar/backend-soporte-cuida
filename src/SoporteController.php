@@ -155,6 +155,8 @@ class SoporteController {
                 $heatmapSeries[] = ["name"=>$x, "data"=>$horas];
             }
 
+            arsort($dataDevs);
+
             echo json_encode([
                 "ticketsPorTipo"=>$dataTicketsPorTipo,
                 "devs"=>$dataDevs,
