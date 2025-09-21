@@ -32,6 +32,10 @@ $method = $_SERVER['REQUEST_METHOD'];
 $filtroMes = $_GET['mes'] ?? 'todos';
 $filtroUsuario = $_GET['usuario'] ?? 'todos';
 $filtroAnio =  $_GET['anio'] ?? 'todos';
+$indBusqueda =  $_GET['indBusqueda'] ?? null;
+$parametros =  $_GET['parametros'] ?? null;
+$pagina =  $_GET['pagina'] ?? 1;
+$limite =  $_GET['limite'] ?? 20;
 
 Logger::logGlobal("🧪 path: $path ");
 
@@ -78,9 +82,9 @@ $controller = new SoporteController();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
-    case 'POST': $controller->registrarSoporte($input, $email);
+    case 'POST': $indBusqueda ?  $controller->obtenerSoportes($input, $pagina, $limite) : $controller->registrarSoporte($input, $email);
         break;
-    case 'GET': $controller->obtenerReporte($filtroMes, $filtroAnio, $filtroUsuario );
+    case 'GET': $parametros ? $controller->obtenerTiposSoportes() : $controller->obtenerReporte($filtroMes, $filtroAnio, $filtroUsuario );
         break;
     default:
         http_response_code(405);
