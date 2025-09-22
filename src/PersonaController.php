@@ -308,53 +308,130 @@ class PersonaController {
     public function actualizarPersonaConPedidos($data) {
         Logger::logGlobal("✏️ Actualizando nombres con pedidos: " . json_encode($data));
 
+        // Obtener datos anteriores
+        $queryOld = "SELECT idTipoDocumentoIdentidad, numeroDocumento FROM SALES_PERSONA WHERE idPersona = ?";
+        $stmtOld = $this->conn->prepare($queryOld);
+        $stmtOld->execute([$data['idPersona']]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+        $data['idTipoDocumentoIdentidadAnterior'] = $oldData['idTipoDocumentoIdentidad'] ?? 2;
+        $data['numeroDocumentoAnterior'] = $oldData['numeroDocumento'] ?? '';
+
+        // Actualizar persona
         $query = "UPDATE SALES_PERSONA SET 
                     nombre = IFNULL(?, nombre),
                     apellidos = IFNULL(?, apellidos),
-                    apePaterno  = IFNULL(?, apePaterno),
-                    apeMaterno  = IFNULL(?, apeMaterno),
+                    apePaterno = IFNULL(?, apePaterno),
+                    apeMaterno = IFNULL(?, apeMaterno),
                     idTipoDocumentoIdentidad = IFNULL(?, idTipoDocumentoIdentidad),
                     numeroDocumento = IFNULL(?, numeroDocumento)
-                  WHERE idPersona = ?";
+                WHERE idPersona = ?";
         Logger::logGlobal("El query es $query");
         $stmt = $this->conn->prepare($query);
         $stmt->execute([
             $data['nombre'] ?? null,
             $data['apellidos'] ?? null,
-            $data['apellidosPaterno'] ?? null,
-            $data['apellidosMaterno'] ?? null,
+            $data['apePaterno'] ?? null,
+            $data['apeMaterno'] ?? null,
             $data['idTipoDocumentoIdentidad'] ?? null,
             $data['numeroDocumento'] ?? null,
             $data['idPersona']
         ]);
 
-        // Determina si actualizar solicitudes o pedidos
+        // ======================
+        // Actualizar según tipo
+        // ======================
         if ($data['tipo'] === 'SOLICITUD') {
             $query2 = "UPDATE SALES_DETALLE_SOLICITUD SET 
                             nombresEnvio = IFNULL(?, nombresEnvio),
                             apellidosEnvio = IFNULL(?, apellidosEnvio),
-                            idTipoDocumentoEnvio =  IFNULL(?, idTipoDocumentoEnvio),
+                            idTipoDocumentoEnvio = IFNULL(?, idTipoDocumentoEnvio),
                             numeroDocumentoEnvio = IFNULL(?, numeroDocumentoEnvio)
-                       WHERE idSolicitud IN (SELECT idSolicitud from SALES_SOLICITUD WHERE idCliente = ?)";
-        } else {
+                    WHERE idSolicitud IN (SELECT idSolicitud FROM SALES_SOLICITUD WHERE idCliente = ?)";
+            $params2 = [
+                $data['nombre'] ?? null,
+                $data['apellidos'] ?? null,
+                $data['idTipoDocumentoEnvio'] ?? null,
+                $data['numeroDocumentoEnvio'] ?? null,
+                $data['idPersona']
+            ];
+
+            Logger::logGlobal("El query es $query2");
+            $stmt2 = $this->conn->prepare($query2);
+            $stmt2->execute($params2);
+
+        } else if ($data['tipo'] === 'OM') {
+            // Actualizar formulario
+            $query2 = "UPDATE SALES_FORMULARIO_AUTOGESTION SET 
+                            nombres = IFNULL(?, nombres),
+                            apellidos = IFNULL(?, apellidos),
+                            tipoDocumento = IFNULL(?, tipoDocumento),
+                            nroDocumento = IFNULL(?, nroDocumento)
+                    WHERE nroDocumento = ? AND tipoDocumento = ?";
+            $params2 = [
+                $data['nombre'] ?? null,
+                $data['apellidos'] ?? null,
+                $data['idTipoDocumentoEnvio'] ?? null,
+                $data['numeroDocumentoEnvio'] ?? null,
+                $data['numeroDocumentoAnterior'],
+                $data['idTipoDocumentoIdentidadAnterior']
+            ];
+
+            Logger::logGlobal("El query es $query2");
+            $stmt2 = $this->conn->prepare($query2);
+            $stmt2->execute($params2);
+
+            // Obtener IDs de formularios actualizados
+            $query3 = "SELECT idFormularioAutogestion 
+                    FROM SALES_FORMULARIO_AUTOGESTION 
+                    WHERE nroDocumento = ? AND tipoDocumento = ?";
+            $stmt3 = $this->conn->prepare($query3);
+            $stmt3->execute([
+                $data['numeroDocumento'] ?? null, 
+                $data['idTipoDocumentoIdentidad'] ?? null
+            ]);
+            $formularios = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($formularios as $formulario) {
+                $nombreCompleto = trim(($data['nombre'] ?? '') . " " . ($data['apellidos'] ?? ''));
+
+                $query4 = "UPDATE SALES_ORDEN_MEDICA_AUTOGESTION SET 
+                                nombreCompletoPaciente = IFNULL(?, nombreCompletoPaciente),
+                                tipoDocumento = IFNULL(?, tipoDocumento),
+                                numeroDocumento = IFNULL(?, numeroDocumento)
+                        WHERE idFormAutogestion = ?";
+                $params4 = [
+                    $nombreCompleto ?? null,
+                    $data['idTipoDocumentoEnvio'] ?? null,
+                    $data['numeroDocumentoEnvio'] ?? null,
+                    $formulario['idFormularioAutogestion']
+                ];
+                $stmt4 = $this->conn->prepare($query4);
+                $stmt4->execute($params4);
+            }
+
+        } else { // PEDIDO
             $query2 = "UPDATE SALES_PEDIDO SET 
                             nombresEnvio = IFNULL(?, nombresEnvio),
                             apellidosEnvio = IFNULL(?, apellidosEnvio),
-                            idTipoDocumentoEnvio =  IFNULL(?, idTipoDocumentoEnvio),
+                            idTipoDocumentoEnvio = IFNULL(?, idTipoDocumentoEnvio),
                             numeroDocumentoEnvio = IFNULL(?, numeroDocumentoEnvio)
-                       WHERE idCliente = ?";
-        }
-        Logger::logGlobal("El query es $query2");
-        Logger::logGlobal("✏️ Actualizando nombres con pedidos: " . json_encode($data));
-        $stmt = $this->conn->prepare($query2);
-        $stmt->execute([
-            $data['nombre'] ?? null,
-            $data['apellidos'] ?? null,
-            $data['idTipoDocumentoEnvio'] ?? null,
-            $data['numeroDocumentoEnvio'] ?? null,
-            $data['idPersona']
-        ]);
+                    WHERE idCliente = ?";
+            $params2 = [
+                $data['nombre'] ?? null,
+                $data['apellidos'] ?? null,
+                $data['idTipoDocumentoEnvio'] ?? null,
+                $data['numeroDocumentoEnvio'] ?? null,
+                $data['idPersona']
+            ];
 
-        echo json_encode(["mensaje" => "Persona y solicitudes/pedidos actualizados"]);
+            Logger::logGlobal("El query es $query2");
+            $stmt2 = $this->conn->prepare($query2);
+            $stmt2->execute($params2);
+        }
+
+        echo json_encode(["mensaje" => "Persona y om/solicitudes/pedidos actualizados"]);
     }
+
+
 }

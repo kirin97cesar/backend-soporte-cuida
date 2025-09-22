@@ -41,6 +41,14 @@ class PeriodoController {
         $stmt2->execute();
         $estadosPedidos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
+
+        $query5 = "select idEstadoOM, descripcion from SALES_ORDEN_MEDICA_AUTOGESTION_ESTADO spe 
+                WHERE stsEstado = 1";
+        Logger::logGlobal("El query es: $query5");
+        $stmt5 = $this->conn->prepare($query5);
+        $stmt5->execute();
+        $estadosOM = $stmt5->fetchAll(PDO::FETCH_ASSOC);
+
         $query3= "select idRangoHorario, idCanalVenta, descripcion, tipoRangoHorario from SALES_RANGO_HORARIO srh 
                 WHERE stsRangoHorario = :estado";
         Logger::logGlobal("El query es: $query3");
@@ -62,6 +70,7 @@ class PeriodoController {
         echo json_encode([
             'periodos' => $periodos,
             'estados'  => $estados,
+            'estadosOM' => $estadosOM,
             'estadosPedidos' => $estadosPedidos,
             'rangosHorarios' => $rangosHorarios,
             'estadosPago' => $estadoPago
@@ -94,7 +103,27 @@ class PeriodoController {
             } else {
                  $query .= "WHERE sp.numeroPedido = ?";
             }
-        } else {
+        } else if($tipo === 'OM') {
+            $query = "SELECT  
+                            sp.idOMAutogestion AS idOmAutogestion, sp.numeroOM as numero,
+                            sfa.nombres as nombresEnvio, sfa.apellidos as apellidosEnvio, 
+                            sfa.nroDocumento as numeroDocumentoEnvio , 
+                            sfa.tipoDocumento as idTipoDocumentoEnvio, sp.idOMAutogestion,
+                            sp.idEstadoOM as idOmEstado, stdi.descripcion as descripcionDocumento,
+                            '-' as descripcion
+                        FROM SALES_ORDEN_MEDICA_AUTOGESTION sp
+                        INNER JOIN SALES_FORMULARIO_AUTOGESTION sfa 
+                        ON sfa.idFormularioAutogestion = sp.idFormAutogestion 
+                        LEFT JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
+                        ON stdi.idTipoDocumentoIdentidad = sfa.tipoDocumento 
+                        ";
+            if(!is_null($id) && $id != 'null') {
+                $query .= "WHERE sp.idOMAutogestion = ?";                  
+            } else {                                    
+                $query .= "WHERE sp.numeroOM = ?";
+            }
+        }
+        else {
             $query = "SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idSolicitud, sp.numeroSolicitud as numero,
                         sds.nombresEnvio, sds.apellidosEnvio, sds.numeroDocumentoEnvio,
                         sds.idTipoDocumentoEnvio, stdi.descripcion as descripcionDocumento, sp.idSolicitudEstado,
@@ -139,7 +168,50 @@ class PeriodoController {
             idCanalVenta = IFNULL(? ,idCanalVenta)
             WHERE idSolicitud = ?";
             $stmt->execute([$data['idAfiliadoPeriodo'], $data['idEstadoSolicitud'], $data['numeroCanal'], $data['idCanalVenta'], $data['id']]);
-        } else {
+        } elseif ($data['tipo'] === 'OM') {
+            // Actualizar la orden médica
+            $query = "UPDATE SALES_ORDEN_MEDICA_AUTOGESTION SET 
+                idEstadoOM = IFNULL(?, idEstadoOM), 
+                nombreCompletoPaciente = IFNULL(?, nombreCompletoPaciente), 
+                tipoDocumento = IFNULL(?, tipoDocumento),
+                numeroDocumento = IFNULL(?, numeroDocumento)
+                WHERE idOMAutogestion = ?";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                $data['idOmEstado'] ?? null, 
+                trim(($data['nombresEnvio'] ?? '') . ' ' . ($data['apellidosEnvio'] ?? '')), 
+                $data['idTipoDocumentoEnvio'] ?? null, 
+                $data['numeroDocumentoEnvio'] ?? null, 
+                $data['id'] ?? null
+            ]);
+
+            // Obtener idFormAutogestion real desde SALES_ORDEN_MEDICA_AUTOGESTION
+            $stmtForm = $this->conn->prepare("SELECT idFormAutogestion FROM SALES_ORDEN_MEDICA_AUTOGESTION WHERE idOMAutogestion = ?");
+            $stmtForm->execute([$data['id'] ?? null]);
+            $formResult = $stmtForm->fetch(PDO::FETCH_ASSOC);
+            $idFormAutogestion = $formResult['idFormAutogestion'] ?? null;
+
+            // Actualizar formulario solo si existe idFormAutogestion
+            if ($idFormAutogestion) {
+                $query2 = "UPDATE SALES_FORMULARIO_AUTOGESTION SET 
+                    nombres = IFNULL(?, nombres), 
+                    apellidos = IFNULL(?, apellidos),
+                    nroDocumento = IFNULL(?, nroDocumento), 
+                    tipoDocumento = IFNULL(?, tipoDocumento)
+                    WHERE idFormularioAutogestion = ?";
+                
+                $stmt2 = $this->conn->prepare($query2);
+                $stmt2->execute([
+                    $data['nombresEnvio'] ?? null, 
+                    $data['apellidosEnvio'] ?? null, 
+                    $data['numeroDocumentoEnvio'] ?? null, 
+                    $data['idTipoDocumentoEnvio'] ?? null, 
+                    $idFormAutogestion
+                ]);
+            }
+        }
+        else {
             $query = "UPDATE SALES_PEDIDO SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo),
             idPedidoEstado = IFNULL(? , idPedidoEstado),
             canalNumeroPedido= IFNULL(? ,canalNumeroPedido),
@@ -181,7 +253,7 @@ class PeriodoController {
     }
 
     public function actualizarNombresEnvio($data) {
-        Logger::logGlobal("✏️ Actualizando periodo $id: " . json_encode($data));
+        Logger::logGlobal("✏️ Actualizando periodo");
 
         if($data['codigoMotorizado'] == 'NULL') {
             $query2 = "UPDATE SALES_PEDIDO SET idMotorizado = ? WHERE idPedido = ?";
@@ -222,7 +294,53 @@ class PeriodoController {
                 $data['id']
             ]);
             
-        } else {
+        } else if ($data['tipo'] === 'OM') {
+            // Actualizar orden médica
+            $query1 = "UPDATE SALES_ORDEN_MEDICA_AUTOGESTION SET 
+                idEstadoOM = IFNULL(?, idEstadoOM), 
+                nombreCompletoPaciente = IFNULL(?, nombreCompletoPaciente), 
+                tipoDocumento = IFNULL(?, tipoDocumento),
+                numeroDocumento = IFNULL(?, numeroDocumento)
+                WHERE idOMAutogestion = ?";
+            
+            Logger::logGlobal("query $query1");
+            $stmt1 = $this->conn->prepare($query1);
+            $stmt1->execute([
+                $data['idOmEstado'] ?? null, 
+                trim(($data['nombresEnvio'] ?? '') . ' ' . ($data['apellidosEnvio'] ?? '')), 
+                $data['idTipoDocumentoEnvio'] ?? null, 
+                $data['numeroDocumentoEnvio'] ?? null, 
+                $data['id'] ?? null
+            ]);
+
+            // Actualizar formulario autogestión usando idFormAutogestion real
+            $stmtForm = $this->conn->prepare("SELECT idFormAutogestion FROM SALES_ORDEN_MEDICA_AUTOGESTION WHERE idOMAutogestion = ?");
+            $stmtForm->execute([$data['id'] ?? null]);
+            $formResult = $stmtForm->fetch(PDO::FETCH_ASSOC);
+            $idFormAutogestion = $formResult['idFormAutogestion'] ?? null;
+            Logger::logGlobal("formResult -->" . json_encode($formResult));
+
+
+            if ($idFormAutogestion) {
+                $query2 = "UPDATE SALES_FORMULARIO_AUTOGESTION SET 
+                    nombres = IFNULL(?, nombres), 
+                    apellidos = IFNULL(?, apellidos),
+                    nroDocumento = IFNULL(?, nroDocumento), 
+                    tipoDocumento = IFNULL(?, tipoDocumento)
+                    WHERE idFormularioAutogestion = ?";
+                
+                Logger::logGlobal("query $query2");
+                $stmt2 = $this->conn->prepare($query2);
+                $stmt2->execute([
+                    $data['nombresEnvio'] ?? null, 
+                    $data['apellidosEnvio'] ?? null, 
+                    $data['numeroDocumentoEnvio'] ?? null, 
+                    $data['idTipoDocumentoEnvio'] ?? null, 
+                    $idFormAutogestion
+                ]);
+            }
+        }
+        else {
             $query1 = "UPDATE SALES_PEDIDO SET idAfiliadoPeriodo = IFNULL(?, idAfiliadoPeriodo),
             idPedidoEstado = IFNULL(? , idPedidoEstado),
             canalNumeroPedido= IFNULL(? ,canalNumeroPedido),
@@ -260,17 +378,60 @@ class PeriodoController {
                     numeroDocumentoEnvio=IFNULL(?, numeroDocumentoEnvio),
                     idTipoDocumentoEnvio=IFNULL(?, idTipoDocumentoEnvio)
                     WHERE idSolicitud = ?";
-        } else {
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['numeroDocumentoEnvio'], $data['idTipoDocumentoEnvio'], $data['id']]);
+        } else if ($data['tipo'] === 'OM') {
+            // Actualizar orden médica
+            $query = "UPDATE SALES_ORDEN_MEDICA_AUTOGESTION
+                SET nombreCompletoPaciente = IFNULL(?, nombreCompletoPaciente),
+                    numeroDocumento = IFNULL(?, numeroDocumento),
+                    tipoDocumento = IFNULL(?, tipoDocumento)
+                WHERE idOMAutogestion = ?";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                trim(($data['nombresEnvio'] ?? '') . ' ' . ($data['apellidosEnvio'] ?? '')),
+                $data['numeroDocumentoEnvio'] ?? null,
+                $data['idTipoDocumentoEnvio'] ?? null,
+                $data['id'] ?? null
+            ]);
+
+            // Obtener idFormAutogestion real
+            $stmtForm = $this->conn->prepare("SELECT idFormAutogestion FROM SALES_ORDEN_MEDICA_AUTOGESTION WHERE idOMAutogestion = ?");
+            $stmtForm->execute([$data['id'] ?? null]);
+            $formResult = $stmtForm->fetch(PDO::FETCH_ASSOC);
+            Logger::logGlobal("formResult -->" . json_encode($formResult));
+            $idFormAutogestion = $formResult['idFormAutogestion'] ?? null;
+
+            // Actualizar formulario solo si existe idFormAutogestion
+            if ($idFormAutogestion) {
+                $query2 = "UPDATE SALES_FORMULARIO_AUTOGESTION
+                    SET nombres = IFNULL(?, nombres),
+                        apellidos = IFNULL(?, apellidos),
+                        nroDocumento = IFNULL(?, nroDocumento),
+                        tipoDocumento = IFNULL(?, tipoDocumento)
+                    WHERE idFormularioAutogestion = ?";
+                
+                $stmt2 = $this->conn->prepare($query2);
+                $stmt2->execute([
+                    $data['nombresEnvio'] ?? null,
+                    $data['apellidosEnvio'] ?? null,
+                    $data['numeroDocumentoEnvio'] ?? null,
+                    $data['idTipoDocumentoEnvio'] ?? null,
+                    $idFormAutogestion
+                ]);
+            }
+        }
+        else {
             $query = "UPDATE SALES_PEDIDO 
                     SET nombresEnvio=IFNULL(?, nombresEnvio),
                     apellidosEnvio=IFNULL(?, apellidosEnvio),
                     numeroDocumentoEnvio=IFNULL(?, numeroDocumentoEnvio),
                     idTipoDocumentoEnvio=IFNULL(?, idTipoDocumentoEnvio)
                     WHERE idPedido = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['numeroDocumentoEnvio'], $data['idTipoDocumentoEnvio'], $data['id']]);
         }
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['numeroDocumentoEnvio'], $data['idTipoDocumentoEnvio'], $data['id']]);
 
         if($data['orden'] && $data['orden'] != 'NULL') {
             $query2 = "UPDATE SALES_PEDIDO_PROGRAMACION SET orden = IFNULL(?, orden)
@@ -282,6 +443,6 @@ class PeriodoController {
             ]);
         }
         echo json_encode(["mensaje" => "Nombres actualizado"]);
-    }
+    } 
 
 }
