@@ -160,7 +160,7 @@ class SoporteController {
         $ultimoMes = (int)$hoy->format('m');
         $ultimoAnio = (int)$hoy->format('Y');
 
-        // Filtro por año
+        // Filtros
         if (!$filtroAnio || $filtroAnio === "todos") {
             $anio = $ultimoAnio;
         } else {
@@ -169,13 +169,11 @@ class SoporteController {
         $condiciones[] = "YEAR(fechaCreacion) = :anio";
         $params[':anio'] = $anio;
 
-        // Filtro por mes
         if ($filtroMes && $filtroMes !== "todos") {
             $condiciones[] = "MONTH(fechaCreacion) = :mes";
             $params[':mes'] = (int)$filtroMes;
         }
 
-        // Filtro por usuario
         if ($filtroUsuario && $filtroUsuario !== "todos") {
             $condiciones[] = "usuario = :usuario";
             $params[':usuario'] = $filtroUsuario;
@@ -183,12 +181,12 @@ class SoporteController {
 
         $where = count($condiciones) ? "WHERE ".implode(" AND ", $condiciones) : "";
 
-        // Tipos fijos y nombres de meses
+        // Tipos y nombres
         $tipos = ["Soporte", "Pase a producción", "Incidencia", "Mejora"];
         $mesesNombre = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
         $diaSemana = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
-        // ===== QUERY PRINCIPAL PARA LOS OTROS GRÁFICOS =====
+        // Query normalizada (para gráficos agrupados)
         $query = "
             SELECT 
                 usuario,
@@ -207,7 +205,18 @@ class SoporteController {
         $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // ======== GRÁFICOS EXISTENTES ========
+        // Query RAW (sin normalizar) — la usamos para ticketsPorTodosLosTipos y tiposPorDia
+        $queryRaw = "
+            SELECT usuario, tipo, fechaCreacion
+            FROM SALES_SOPORTES
+            $where
+            ORDER BY fechaCreacion ASC;
+        ";
+        $stmtRaw = $this->conn->prepare($queryRaw);
+        $stmtRaw->execute($params);
+        $rowsRaw = $stmtRaw->fetchAll(PDO::FETCH_ASSOC);
+
+        // ======== GRÁFICOS EXISTENTES (a partir de la query normalizada) ========
         $dataTicketsPorTipo = ["total"=>array_fill_keys($tipos,0),"porMes"=>[]];
         foreach ($mesesNombre as $mes) $dataTicketsPorTipo["porMes"][$mes] = array_fill(0,count($tipos),0);
 
@@ -216,6 +225,8 @@ class SoporteController {
         foreach ($tipos as $tipo) $dataMeses[$tipo] = array_fill(0,12,0);
 
         $dataSoportes = [];
+        $mapTipos = array_flip($tipos); // para evitar array_search en cada iteración
+
         foreach ($rows as $row) {
             $tipo = $row['tipo'];
             $usuario = $row['usuario'];
@@ -224,8 +235,8 @@ class SoporteController {
             $diaHora = $fecha->format('Y-m-d');
             $hora = (int)$fecha->format('G');
 
-            $idx = array_search($tipo, $tipos);
-            if ($idx !== false) {
+            $idx = $mapTipos[$tipo] ?? null;
+            if ($idx !== null) {
                 $dataTicketsPorTipo["total"][$tipo]++;
                 $dataTicketsPorTipo["porMes"][$mesNombre][$idx]++;
             }
@@ -233,7 +244,7 @@ class SoporteController {
             if (!isset($dataDevs[$usuario])) $dataDevs[$usuario] = 0;
             $dataDevs[$usuario]++;
 
-            $dataMeses[$tipo][$fecha->format('n')-1]++;
+            if (isset($dataMeses[$tipo])) $dataMeses[$tipo][$fecha->format('n')-1]++;
 
             if ((!$filtroMes || $filtroMes === "todos") && $fecha->format('n') == $ultimoMes) {
                 if(!isset($dataSoportes[$diaHora])) $dataSoportes[$diaHora] = array_fill(0,24,0);
@@ -256,47 +267,36 @@ class SoporteController {
 
         arsort($dataDevs);
 
-        // ======== tiposPorDia REAL E INDEPENDIENTE (AGRUPADO POR FECHA) ========
-        $queryTipos = "SELECT tipo, fechaCreacion FROM SALES_SOPORTES WHERE 1=1";
-        $paramsTipos = [];
-
-        if ($filtroAnio && $filtroAnio !== "todos") {
-            $queryTipos .= " AND YEAR(fechaCreacion) = :anio";
-            $paramsTipos[':anio'] = (int)$filtroAnio;
-        }
-        if ($filtroMes && $filtroMes !== "todos") {
-            $queryTipos .= " AND MONTH(fechaCreacion) = :mes";
-            $paramsTipos[':mes'] = (int)$filtroMes;
-        }
-        if ($filtroUsuario && $filtroUsuario !== "todos") {
-            $queryTipos .= " AND usuario = :usuario";
-            $paramsTipos[':usuario'] = $filtroUsuario;
-        }
-
-        $stmtTipos = $this->conn->prepare($queryTipos);
-        $stmtTipos->execute($paramsTipos);
-        $rowsTiposPorDia = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
-
+        // ======== CORRECCIÓN: tiposPorDia (A PARTIR DE LA QUERY RAW) ========
         $tiposPorDia = [];
+        foreach ($rowsRaw as $row) {
+            $tipoRaw = $row['tipo'];
+            $fechaYmd = (new DateTime($row['fechaCreacion']))->format('Y-m-d');
 
-        foreach ($rowsTiposPorDia as $row) {
-            $tipo = $row['tipo'];
-            $fecha = (new DateTime($row['fechaCreacion']))->format('Y-m-d');
+            if (!isset($tiposPorDia[$tipoRaw])) $tiposPorDia[$tipoRaw] = [];
+            if (!isset($tiposPorDia[$tipoRaw][$fechaYmd])) $tiposPorDia[$tipoRaw][$fechaYmd] = 0;
+            $tiposPorDia[$tipoRaw][$fechaYmd]++;
+        }
 
-            if (!isset($tiposPorDia[$tipo])) {
-                $tiposPorDia[$tipo] = [];
-            }
+        // ======== NUEVO: ticketsPorTodosLosTipos (también a partir de rowsRaw) ========
+        $ticketsPorTodosLosTipos = ["total"=>[],"porMes"=>[]];
+        foreach ($rowsRaw as $row) {
+            $tipoRaw = $row['tipo'];
+            $fecha = new DateTime($row['fechaCreacion']);
+            $mesNombre = $mesesNombre[$fecha->format('n')-1];
 
-            if (!isset($tiposPorDia[$tipo][$fecha])) {
-                $tiposPorDia[$tipo][$fecha] = 0;
-            }
+            if (!isset($ticketsPorTodosLosTipos["total"][$tipoRaw])) $ticketsPorTodosLosTipos["total"][$tipoRaw] = 0;
+            if (!isset($ticketsPorTodosLosTipos["porMes"][$mesNombre])) $ticketsPorTodosLosTipos["porMes"][$mesNombre] = [];
+            if (!isset($ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw])) $ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw] = 0;
 
-            $tiposPorDia[$tipo][$fecha]++;
+            $ticketsPorTodosLosTipos["total"][$tipoRaw]++;
+            $ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw]++;
         }
 
         // ======== Respuesta final ========
         echo json_encode([
             "ticketsPorTipo" => $dataTicketsPorTipo,
+            "ticketsPorTodosLosTipos" => $ticketsPorTodosLosTipos,
             "devs" => $dataDevs,
             "meses" => $dataMeses,
             "soportes" => $heatmapSeries,
