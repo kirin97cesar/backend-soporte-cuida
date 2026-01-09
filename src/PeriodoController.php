@@ -86,7 +86,8 @@ class PeriodoController {
                         sp.nombresEnvio , sp.apellidosEnvio , sp.numeroDocumentoEnvio , sp.idTipoDocumentoEnvio,
                         stdi.descripcion as descripcionDocumento, sp.idPedidoEstado, sp.canalNumeroPedido,
                         sp.fechaEnvio , sp.fechaEnvioFin , sp.idRangoHorario , sp.descripcionRangoHorario,
-                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado, spp.orden
+                        sp.idMotorizado , sm.codigoMotorizado, sp.idCanalVenta, sp.idTipoEnvio, sp.idPagoEstado, spp.orden,
+                        sp.telefonoEnvio, sp.telefonoEnvio2 
                         FROM SALES_PEDIDO sp
                         LEFT JOIN SALES_PEDIDO_PROGRAMACION spp
                         ON spp.idPedido = sp.idPedido
@@ -110,7 +111,8 @@ class PeriodoController {
                             sfa.nroDocumento as numeroDocumentoEnvio , 
                             sfa.tipoDocumento as idTipoDocumentoEnvio, sp.idOMAutogestion,
                             sp.idEstadoOM as idOmEstado, stdi.descripcion as descripcionDocumento,
-                            '-' as descripcion
+                            '-' as descripcion,
+                            null as telefonoEnvio, null as telefonoEnvio2
                         FROM SALES_ORDEN_MEDICA_AUTOGESTION sp
                         INNER JOIN SALES_FORMULARIO_AUTOGESTION sfa 
                         ON sfa.idFormularioAutogestion = sp.idFormAutogestion 
@@ -127,7 +129,8 @@ class PeriodoController {
             $query = "SELECT sp.idAfiliadoPeriodo, spap.descripcion, sp.idSolicitud, sp.numeroSolicitud as numero,
                         sds.nombresEnvio, sds.apellidosEnvio, sds.numeroDocumentoEnvio,
                         sds.idTipoDocumentoEnvio, stdi.descripcion as descripcionDocumento, sp.idSolicitudEstado,
-                        sp.canalNumeroSolicitud, sp.idCanalVenta
+                        sp.canalNumeroSolicitud, sp.idCanalVenta,
+                        sds.telefonoEnvio, sds.telefonoEnvio2
                         FROM SALES_SOLICITUD sp
                         LEFT JOIN SALES_DETALLE_SOLICITUD sds 
 						ON sds.idSolicitud = sp.idSolicitud 
@@ -168,6 +171,15 @@ class PeriodoController {
             idCanalVenta = IFNULL(? ,idCanalVenta)
             WHERE idSolicitud = ?";
             $stmt->execute([$data['idAfiliadoPeriodo'], $data['idEstadoSolicitud'], $data['numeroCanal'], $data['idCanalVenta'], $data['id']]);
+
+            $query2 = "UPDATE SALES_DETALLE_SOLICITUD
+                    SET 
+                    telefonoEnvio=IFNULL(?, telefonoEnvio),
+                    telefonoEnvio2=IFNULL(?, telefonoEnvio2)
+                    WHERE idSolicitud = ?";
+            $stmt2 = $this->conn->prepare($query2);
+            $stmt2->execute([$data['telefonoEnvio'], $data['telefonoEnvio2'], $data['id']]);
+
         } elseif ($data['tipo'] === 'OM') {
             // Actualizar la orden médica
             $query = "UPDATE SALES_ORDEN_MEDICA_AUTOGESTION SET 
@@ -216,6 +228,8 @@ class PeriodoController {
             idPedidoEstado = IFNULL(? , idPedidoEstado),
             canalNumeroPedido= IFNULL(? ,canalNumeroPedido),
             idPagoEstado=  IFNULL(?, idPagoEstado),
+            telefonoEnvio=  IFNULL(?, telefonoEnvio),
+            telefonoEnvio2=  IFNULL(?, telefonoEnvio2),
             descripcionRangoHorario= IFNULL(? ,descripcionRangoHorario),
             idRangoHorario= IFNULL(? ,idRangoHorario),
             fechaEnvio= IFNULL(? ,fechaEnvio),
@@ -229,6 +243,8 @@ class PeriodoController {
                 $data['idEstadoPedido'], 
                 $data['numeroCanal'], 
                 $data['idPagoEstado'], 
+                $data['telefonoEnvio'],
+                $data['telefonoEnvio2'],
                 $data['descripcionRangoHorario'],
                 $data['idRangoHorario'],
                 $data['fechaEnvio'],
@@ -293,6 +309,15 @@ class PeriodoController {
                 $data['idCanalVenta'], 
                 $data['id']
             ]);
+
+            $query3 = "UPDATE SALES_DETALLE_SOLICITUD
+            SET 
+            telefonoEnvio=IFNULL(?, telefonoEnvio),
+            telefonoEnvio2=IFNULL(?, telefonoEnvio2)
+            WHERE idSolicitud = ?";
+            Logger::logGlobal("query $query3");
+            $stmt3 = $this->conn->prepare($query3);
+            $stmt3->execute([$data['telefonoEnvio'], $data['telefonoEnvio2'], $data['id']]);
             
         } else if ($data['tipo'] === 'OM') {
             // Actualizar orden médica
@@ -350,6 +375,8 @@ class PeriodoController {
             fechaEnvio= IFNULL(? ,fechaEnvio),
             fechaEnvioFin= IFNULL(? ,fechaEnvioFin),
             idTipoEnvio = IFNULL(? ,idTipoEnvio),
+            telefonoEnvio = IFNULL(? ,telefonoEnvio),
+            telefonoEnvio2 = IFNULL(? ,telefonoEnvio2),
             idCanalVenta = IFNULL(? ,idCanalVenta)
             WHERE idPedido = ?";
             Logger::logGlobal("query $query1");
@@ -364,6 +391,8 @@ class PeriodoController {
                 $data['fechaEnvio'],
                 $data['fechaEnvioFin'],
                 $data['idTipoEnvio'],
+                $data['telefonoEnvio'],
+                $data['telefonoEnvio2'],
                 $data['idCanalVenta'],
                 $data['id']
             ]);
@@ -376,10 +405,12 @@ class PeriodoController {
                     SET nombresEnvio=IFNULL(?, nombresEnvio),
                     apellidosEnvio=IFNULL(?, apellidosEnvio),
                     numeroDocumentoEnvio=IFNULL(?, numeroDocumentoEnvio),
+                    telefonoEnvio=IFNULL(?, telefonoEnvio),
+                    telefonoEnvio2=IFNULL(?, telefonoEnvio2),
                     idTipoDocumentoEnvio=IFNULL(?, idTipoDocumentoEnvio)
                     WHERE idSolicitud = ?";
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['numeroDocumentoEnvio'], $data['idTipoDocumentoEnvio'], $data['id']]);
+            $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['numeroDocumentoEnvio'], $data['telefonoEnvio'], $data['telefonoEnvio2'], $data['idTipoDocumentoEnvio'], $data['id']]);
         } else if ($data['tipo'] === 'OM') {
             // Actualizar orden médica
             $query = "UPDATE SALES_ORDEN_MEDICA_AUTOGESTION
@@ -426,11 +457,13 @@ class PeriodoController {
             $query = "UPDATE SALES_PEDIDO 
                     SET nombresEnvio=IFNULL(?, nombresEnvio),
                     apellidosEnvio=IFNULL(?, apellidosEnvio),
+                    telefonoEnvio=IFNULL(?, telefonoEnvio),
+                    telefonoEnvio2=IFNULL(?, telefonoEnvio2),
                     numeroDocumentoEnvio=IFNULL(?, numeroDocumentoEnvio),
                     idTipoDocumentoEnvio=IFNULL(?, idTipoDocumentoEnvio)
                     WHERE idPedido = ?";
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['numeroDocumentoEnvio'], $data['idTipoDocumentoEnvio'], $data['id']]);
+            $stmt->execute([$data['nombresEnvio'], $data['apellidosEnvio'], $data['telefonoEnvio'], $data['telefonoEnvio2'], $data['numeroDocumentoEnvio'], $data['idTipoDocumentoEnvio'], $data['id']]);
         }
 
         if($data['orden'] && $data['orden'] != 'NULL') {
