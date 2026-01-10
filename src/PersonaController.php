@@ -25,24 +25,46 @@ class PersonaController {
     public function buscarPersona($numeroDocumento, $tipoDocumento) {
         Logger::logGlobal("📦 buscarPersona ---> $numeroDocumento");
 
-        $query = "SELECT sp.idPersona, sp.nombre, sp.apellidos, sp.numeroDocumento, sp.idTipoDocumentoIdentidad,
-                        sp.apePaterno, sp.apeMaterno, stdi.descripcion 
-                  FROM SALES_PERSONA sp 
-                  INNER JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi 
-                      ON stdi.idTipoDocumentoIdentidad = sp.idTipoDocumentoIdentidad 
-                  WHERE sp.numeroDocumento = ? AND sp.idTipoDocumentoIdentidad = ?";
+        $query = "
+            SELECT 
+                sp.idPersona,
+                sp.nombre,
+                sp.apellidos,
+                sp.numeroDocumento,
+                sp.idTipoDocumentoIdentidad,
+                sp.apePaterno,
+                sp.apeMaterno,
+                stdi.descripcion 
+            FROM SALES_PERSONA sp
+            INNER JOIN SALES_TIPO_DOCUMENTO_IDENTIDAD stdi
+                ON stdi.idTipoDocumentoIdentidad = sp.idTipoDocumentoIdentidad
+            WHERE sp.numeroDocumento = ?
+            AND sp.idTipoDocumentoIdentidad = ?
+        ";
 
-        Logger::logGlobal("El query es $query");
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$numeroDocumento, $tipoDocumento]);
-        $persona = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $persona = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($persona) {
-            echo json_encode($persona);
-        } else {
+        if (!$persona) {
             http_response_code(404);
             echo json_encode(["mensaje" => "Persona no encontrada"]);
+            return;
         }
+
+        $query2 = "
+            SELECT telefono, idTelefono
+            FROM SALES_PERSONA_TELEFONO
+            WHERE idPersona = ?
+        ";
+
+        $stmt2 = $this->conn->prepare($query2);
+        $stmt2->execute([$persona['idPersona']]);
+        $telefonos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+        $persona['telefonos'] = $telefonos;
+
+        echo json_encode([$persona]);
     }
 
     public function buscarCuenta($correoCuenta) {
@@ -282,27 +304,69 @@ class PersonaController {
     public function actualizarPersona($data) {
         Logger::logGlobal("✏️ Actualizando persona: " . json_encode($data));
 
-        $query = "UPDATE SALES_PERSONA SET 
+        try {
+            $this->conn->beginTransaction();
+
+            // 1️⃣ Actualizar datos de la persona
+            $queryPersona = "
+                UPDATE SALES_PERSONA SET 
                     nombre = IFNULL(?, nombre),
                     apellidos = IFNULL(?, apellidos),
-                    apePaterno  = IFNULL(?, apePaterno),
-                    apeMaterno  = IFNULL(?, apeMaterno),
+                    apePaterno = IFNULL(?, apePaterno),
+                    apeMaterno = IFNULL(?, apeMaterno),
                     idTipoDocumentoIdentidad = IFNULL(?, idTipoDocumentoIdentidad),
                     numeroDocumento = IFNULL(?, numeroDocumento)
-                  WHERE idPersona = ?";
+                WHERE idPersona = ?
+            ";
 
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute([
-            $data['nombre'] ?? null,
-            $data['apellidos'] ?? null,
-            $data['apellidosPaterno'] ?? null,
-            $data['apellidosMaterno'] ?? null,
-            $data['idTipoDocumentoIdentidad'] ?? null,
-            $data['numeroDocumento'] ?? null,
-            $data['idPersona']
-        ]);
+            $stmt = $this->conn->prepare($queryPersona);
+            $stmt->execute([
+                $data['nombre'] ?? null,
+                $data['apellidos'] ?? null,
+                $data['apellidosPaterno'] ?? null,
+                $data['apellidosMaterno'] ?? null,
+                $data['idTipoDocumentoIdentidad'] ?? null,
+                $data['numeroDocumento'] ?? null,
+                $data['idPersona']
+            ]);
 
-        echo json_encode(["mensaje" => "Persona actualizada"]);
+            // 2️⃣ Solo actualizar teléfonos existentes
+            if (!empty($data['telefonos']) && is_array($data['telefonos'])) {
+
+                $queryUpdateTelefono = "
+                    UPDATE SALES_PERSONA_TELEFONO
+                    SET telefono = ?
+                    WHERE idTelefono = ?
+                    AND idPersona = ?
+                ";
+
+                $stmtUpdateTelefono = $this->conn->prepare($queryUpdateTelefono);
+
+                foreach ($data['telefonos'] as $tel) {
+                    // ⛔ Si no tiene idTelefono, NO se hace nada
+                    if (empty($tel['idTelefono'])) {
+                        Logger::logGlobal("⚠️ Teléfono ignorado (sin idTelefono)");
+                        continue;
+                    }
+
+                    $stmtUpdateTelefono->execute([
+                        $tel['telefono'],
+                        $tel['idTelefono'],
+                        $data['idPersona']
+                    ]);
+                }
+            }
+
+            $this->conn->commit();
+
+            echo json_encode(["mensaje" => "Persona y teléfonos actualizados correctamente"]);
+
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            Logger::logGlobal("❌ Error al actualizar persona: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(["mensaje" => "Error al actualizar persona"]);
+        }
     }
 
     public function actualizarPersonaConPedidos($data) {
