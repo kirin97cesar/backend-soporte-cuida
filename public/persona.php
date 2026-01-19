@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 
-require_once __DIR__ . '/../src/PersonaController.php';
+require_once __DIR__ . '/../src/PersonaService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 
@@ -27,6 +27,7 @@ $path = str_replace($basePath, '', $requestUri);
 
 $numeroDocumento = $_GET['numeroDocumento'] ?? null;
 $tipoDocumento = $_GET['tipoDocumento'] ?? null;
+$listadoUsuarios = $_GET['listadoUsuarios'] ?? null;
 
 // Obtener método, recurso e ID
 $method = $_SERVER['REQUEST_METHOD'];
@@ -67,16 +68,31 @@ if (!$usuario) {
     echo json_encode(["error" => "Token inválido o expirado"]);
     exit;
 }
+
+$page  = isset($_GET['page'])
+    ? (int) $_GET['page']
+    : 1;
+
+$limit = $_GET['limit']
+    ? (int) $_GET['limit']
+    : 10;
+
 // Procesar la solicitud
-$controller = new PersonaController();
+$service = new PersonaService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        ($numeroDocumento && $tipoDocumento) ? $controller->buscarPersona($numeroDocumento, $tipoDocumento) : $controller->index();
+        if ($numeroDocumento && $tipoDocumento) {
+            $service->buscarPersona($numeroDocumento, $tipoDocumento);
+        } elseif ($listadoUsuarios) {
+            $service->listadoUsuarios($page, $limit);
+        } else {
+            $service->index();
+        }
         break;
     case 'POST':
-        ($input['pedidosAsociados']) ? $controller->actualizarPersonaConPedidos($input) : $controller->actualizarPersona($input);
+        ($input['pedidosAsociados']) ? $service->actualizarPersonaConPedidos($input) : $service->actualizarPersona($input);
         break;
     default:
         http_response_code(405);

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 
-require_once __DIR__ . '/../src/PersonaController.php';
+require_once __DIR__ . '/../src/PersonaService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 
@@ -73,29 +73,29 @@ if (!$usuario) {
     exit;
 }
 // Procesar la solicitud
-$controller = new PersonaController();
+$service = new PersonaService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
         if ($numeroDocumento) {
-            $controller->buscarCuenta($numeroDocumento);
+            $service->buscarCuenta($numeroDocumento);
         } elseif ($correoAgente) {
-            $controller->buscarAgentexCorreo($correoAgente);
+            $service->buscarAgentexCorreo($correoAgente);
         } elseif($tipoAgente) {
-            $controller->tiposDeAgente();
+            $service->tiposDeAgente();
         } else {
-            $controller->listadoAgentes();
+            $service->listadoAgentes();
         }
         break;
     case 'DELETE':
-            $controller->eliminarAgente($idAgente);
+            $service->eliminarAgente($idAgente);
             break;
     case 'PUT':
-            $controller->actualizarAgente($input);
+            $service->actualizarAgente($input);
             break;
     case 'POST':
-            $controller->registrarAgente($input);
+            $service->registrarAgente($input);
             break;
     default:
         http_response_code(405);

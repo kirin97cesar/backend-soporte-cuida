@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/database2.php';
 require_once __DIR__ . '/../utils/Logger.php';
-require_once __DIR__ . '/ProductController.php';
+require_once __DIR__ . '/ProductService.php';
 
-class EsquemasController {
+class EsquemasService {
     private $conn;
 
     public function __construct() {
@@ -216,11 +216,11 @@ class EsquemasController {
             Logger::logGlobal("✅ productos =>". json_encode($productos));
             // 3. Si hay productos no registrados, obtener sus datos y registrarlos
             if (!empty($productosNoRegistrados)) {
-                $controller = new ProductController();
+                $service = new ProductService();
 
                 Logger::logGlobal("✅ productosNoRegistrados =>". json_encode($productosNoRegistrados));
 
-                $productosExternos = $controller->obtenerProductoXSku($productosNoRegistrados);
+                $productosExternos = $service->obtenerProductoXSku($productosNoRegistrados);
                 Logger::logGlobal("✅ productosExternos =>". json_encode($productosExternos));
 
                 if (!empty($productosExternos)) {

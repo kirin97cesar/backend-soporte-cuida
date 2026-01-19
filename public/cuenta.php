@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 
-require_once __DIR__ . '/../src/PersonaController.php';
+require_once __DIR__ . '/../src/PersonaService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 
@@ -67,12 +67,12 @@ if (!$usuario) {
     exit;
 }
 // Procesar la solicitud
-$controller = new PersonaController();
+$service = new PersonaService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        ($correoCuenta) ? $controller->buscarCuenta($correoCuenta) : '';
+        ($correoCuenta) ? $service->buscarCuenta($correoCuenta) : '';
         break;
     default:
         http_response_code(405);

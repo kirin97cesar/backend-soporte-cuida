@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../utils/Logger.php';
 
-class PersonaController {
+class PersonaService {
     private $conn;
 
     public function __construct() {
@@ -65,6 +65,61 @@ class PersonaController {
         $persona['telefonos'] = $telefonos;
 
         echo json_encode([$persona]);
+    }
+
+    public function listadoUsuarios($page = 1, $limit = 10) {
+        Logger::logGlobal("📦 Listando usuarios (paginado)");
+
+        $offset = ($page - 1) * $limit;
+
+        // Total de registros
+        $countQuery = "
+            SELECT COUNT(*) AS total
+            FROM SALES_USUARIOS_PBI
+            WHERE stsEstado = 'ACT'
+        ";
+        $countStmt = $this->conn->prepare($countQuery);
+        $countStmt->execute();
+        $total = (int) $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+        // Query paginada
+        $query = "
+            SELECT 
+                idUsuarioPbi,
+                correo,
+                tipoDocumento,
+                numeroDocumento,
+                nombres,
+                apellidoPaterno,
+                apellidoMaterno,
+                grupos,
+                permisoSoporte,
+                rol,
+                stsEstado,
+                fechaCreacion,
+                usuarioCreacion,
+                fechaActualizacion,
+                usuarioActualizacion
+            FROM SALES_USUARIOS_PBI
+            WHERE stsEstado = 'ACT'
+            ORDER BY fechaCreacion DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'page'       => $page,
+            'perPage'    => $limit,
+            'total'      => $total,
+            'totalPages' => ceil($total / $limit),
+            'data'       => $personas
+        ]);
     }
 
     public function buscarCuenta($correoCuenta) {

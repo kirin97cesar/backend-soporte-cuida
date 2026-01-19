@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 
-require_once __DIR__ . '/../src/SoporteController.php';
+require_once __DIR__ . '/../src/SoporteService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 
@@ -78,13 +78,13 @@ $email = JWTUtils::obtenerEmail($token);
 Logger::logGlobal("🧪 email: $email");
 
 // Procesar la solicitud
-$controller = new SoporteController();
+$service = new SoporteService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
-    case 'POST': $indBusqueda ?  $controller->obtenerSoportes($input, $pagina, $limite) : $controller->registrarSoporte($input, $email);
+    case 'POST': $indBusqueda ?  $service->obtenerSoportes($input, $pagina, $limite) : $service->registrarSoporte($input, $email);
         break;
-    case 'GET': $parametros ? $controller->obtenerTiposSoportes() : $controller->obtenerReporte($filtroMes, $filtroAnio, $filtroUsuario );
+    case 'GET': $parametros ? $service->obtenerTiposSoportes() : $service->obtenerReporte($filtroMes, $filtroAnio, $filtroUsuario );
         break;
     default:
         http_response_code(405);

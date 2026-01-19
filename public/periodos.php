@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 
-require_once __DIR__ . '/../src/PeriodoController.php';
+require_once __DIR__ . '/../src/PeriodoService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 
@@ -73,15 +73,15 @@ if (!$usuario) {
 
 
 // Procesar la solicitud
-$controller = new PeriodoController();
+$service = new PeriodoService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        ($id || $numero) ? $controller->buscarPedidoPorPeriodo($tipo, $numero, $id) : $controller->index();
+        ($id || $numero) ? $service->buscarPedidoPorPeriodo($tipo, $numero, $id) : $service->index();
         break;
     case 'POST':
-        ($input['nombresEnvio']) ? $controller->actualizarNombresEnvio($input) : $controller->actualizarPeriodo($input);
+        ($input['nombresEnvio']) ? $service->actualizarNombresEnvio($input) : $service->actualizarPeriodo($input);
         break;
     default:
         http_response_code(405);

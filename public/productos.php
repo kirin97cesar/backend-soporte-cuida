@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 
-require_once __DIR__ . '/../src/ProductController.php';
+require_once __DIR__ . '/../src/ProductService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 // Determinar la URI relativa (después de /api/public)
@@ -71,15 +71,15 @@ if (!$usuario) {
 
 
 // Procesar la solicitud
-$controller = new ProductController();
+$service = new ProductService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        $sku ? $controller->buscarProducto($idPetitorio, $sku, $idCanalVenta) : $controller->index();
+        $sku ? $service->buscarProducto($idPetitorio, $sku, $idCanalVenta) : $service->index();
         break;
     case 'POST':
-        $controller->actualizarProducto($input);
+        $service->actualizarProducto($input);
         break;
     default:
         http_response_code(405);

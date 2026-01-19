@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 
-require_once __DIR__ . '/../src/EsquemasController.php';
+require_once __DIR__ . '/../src/EsquemasService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 
@@ -67,15 +67,15 @@ if (!$usuario) {
 
 
 // Procesar la solicitud
-$controller = new EsquemasController();
+$service = new EsquemasService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        ($numero) ? $controller->buscarEsquema($numero) : $controller->index();
+        ($numero) ? $service->buscarEsquema($numero) : $service->index();
         break;
     case 'POST':
-        ($input['productos']) ? $controller->registrarEsquema($input) : $controller->actualizarEsquema($input);
+        ($input['productos']) ? $service->registrarEsquema($input) : $service->actualizarEsquema($input);
         break;
     default:
         http_response_code(405);

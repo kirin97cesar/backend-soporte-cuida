@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 
 
-require_once __DIR__ . '/../src/MotorizadoController.php';
+require_once __DIR__ . '/../src/MotorizadoService.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
 
 
@@ -70,15 +70,15 @@ if (!$usuario) {
     exit;
 }
 // Procesar la solicitud
-$controller = new MotorizadoController();
+$service = new MotorizadoService();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        ($codigoMotorizado || $idEmpresa || $numeroDocumento) ? $controller->buscarMotorizados($codigoMotorizado, $idEmpresa, $numeroDocumento) : $controller->index();
+        ($codigoMotorizado || $idEmpresa || $numeroDocumento) ? $service->buscarMotorizados($codigoMotorizado, $idEmpresa, $numeroDocumento) : $service->index();
         break;
     case 'POST':
-        $controller->registrarEmpresa($input);
+        $service->registrarEmpresa($input);
         break;
     default:
         http_response_code(405);
