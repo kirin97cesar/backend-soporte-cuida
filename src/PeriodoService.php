@@ -112,7 +112,7 @@ class PeriodoService {
                             sfa.tipoDocumento as idTipoDocumentoEnvio, sp.idOMAutogestion,
                             sp.idEstadoOM as idOmEstado, stdi.descripcion as descripcionDocumento,
                             '-' as descripcion,
-                            null as telefonoEnvio, null as telefonoEnvio2
+                            sfa.telefono as telefonoEnvio, null as telefonoEnvio2
                         FROM SALES_ORDEN_MEDICA_AUTOGESTION sp
                         INNER JOIN SALES_FORMULARIO_AUTOGESTION sfa 
                         ON sfa.idFormularioAutogestion = sp.idFormAutogestion 
@@ -351,7 +351,8 @@ class PeriodoService {
                     nombres = IFNULL(?, nombres), 
                     apellidos = IFNULL(?, apellidos),
                     nroDocumento = IFNULL(?, nroDocumento), 
-                    tipoDocumento = IFNULL(?, tipoDocumento)
+                    tipoDocumento = IFNULL(?, tipoDocumento),
+                    telefono = IFNULL(?, telefono)
                     WHERE idFormularioAutogestion = ?";
                 
                 Logger::logGlobal("query $query2");
@@ -361,6 +362,7 @@ class PeriodoService {
                     $data['apellidosEnvio'] ?? null, 
                     $data['numeroDocumentoEnvio'] ?? null, 
                     $data['idTipoDocumentoEnvio'] ?? null, 
+                    $data['telefonoEnvio'] ?? null,
                     $idFormAutogestion
                 ]);
             }
