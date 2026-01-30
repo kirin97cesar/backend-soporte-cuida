@@ -465,13 +465,20 @@ class PersonaService {
                             nombresEnvio = IFNULL(?, nombresEnvio),
                             apellidosEnvio = IFNULL(?, apellidosEnvio),
                             idTipoDocumentoEnvio = IFNULL(?, idTipoDocumentoEnvio),
-                            numeroDocumentoEnvio = IFNULL(?, numeroDocumentoEnvio)
+                            numeroDocumentoEnvio = IFNULL(?, numeroDocumentoEnvio),
+                            telefonoEnvio=IFNULL(?, telefonoEnvio),
+                            telefonoEnvio2=IFNULL(?, telefonoEnvio2)
                     WHERE idSolicitud IN (SELECT idSolicitud FROM SALES_SOLICITUD WHERE idCliente = ?)";
+            $telefono1 = !empty($data['telefonos']) ? $data['telefonos'][0]['telefono'] : null;
+            $telefono2 = !empty($data['telefonos']) && count($data['telefonos']) > 1 ? $data['telefonos'][1]['telefono'] : null;
+
             $params2 = [
                 $data['nombre'] ?? null,
                 $data['apellidos'] ?? null,
                 $data['idTipoDocumentoEnvio'] ?? null,
                 $data['numeroDocumentoEnvio'] ?? null,
+                $telefono1,
+                $telefono2,
                 $data['idPersona']
             ];
 
@@ -485,13 +492,18 @@ class PersonaService {
                             nombres = IFNULL(?, nombres),
                             apellidos = IFNULL(?, apellidos),
                             tipoDocumento = IFNULL(?, tipoDocumento),
-                            nroDocumento = IFNULL(?, nroDocumento)
+                            nroDocumento = IFNULL(?, nroDocumento),
+                            telefono = IFNULL(?, telefono)
                     WHERE nroDocumento = ? AND tipoDocumento = ?";
+            $telefono = !empty($data['telefonos']) 
+            ? $data['telefonos'][0]['telefono'] 
+            : null;
             $params2 = [
                 $data['nombre'] ?? null,
                 $data['apellidos'] ?? null,
                 $data['idTipoDocumentoEnvio'] ?? null,
                 $data['numeroDocumentoEnvio'] ?? null,
+                $telefono,
                 $data['numeroDocumentoAnterior'],
                 $data['idTipoDocumentoIdentidadAnterior']
             ];
@@ -530,17 +542,24 @@ class PersonaService {
             }
 
         } else { // PEDIDO
+            $telefono1 = !empty($data['telefonos']) ? $data['telefonos'][0]['telefono'] : null;
+            $telefono2 = !empty($data['telefonos']) && count($data['telefonos']) > 1 ? $data['telefonos'][1]['telefono'] : null;
+
             $query2 = "UPDATE SALES_PEDIDO SET 
                             nombresEnvio = IFNULL(?, nombresEnvio),
                             apellidosEnvio = IFNULL(?, apellidosEnvio),
                             idTipoDocumentoEnvio = IFNULL(?, idTipoDocumentoEnvio),
-                            numeroDocumentoEnvio = IFNULL(?, numeroDocumentoEnvio)
+                            numeroDocumentoEnvio = IFNULL(?, numeroDocumentoEnvio),
+                            telefonoEnvio=  IFNULL(?, telefonoEnvio),
+                            telefonoEnvio2=  IFNULL(?, telefonoEnvio2)
                     WHERE idCliente = ?";
             $params2 = [
                 $data['nombre'] ?? null,
                 $data['apellidos'] ?? null,
                 $data['idTipoDocumentoEnvio'] ?? null,
                 $data['numeroDocumentoEnvio'] ?? null,
+                $telefono1,
+                $telefono2,
                 $data['idPersona']
             ];
 
@@ -548,6 +567,33 @@ class PersonaService {
             $stmt2 = $this->conn->prepare($query2);
             $stmt2->execute($params2);
         }
+
+        // 2️⃣ Solo actualizar teléfonos existentes
+            if (!empty($data['telefonos']) && is_array($data['telefonos'])) {
+
+                $queryUpdateTelefono = "
+                    UPDATE SALES_PERSONA_TELEFONO
+                    SET telefono = ?
+                    WHERE idTelefono = ?
+                    AND idPersona = ?
+                ";
+
+                $stmtUpdateTelefono = $this->conn->prepare($queryUpdateTelefono);
+
+                foreach ($data['telefonos'] as $tel) {
+                    // ⛔ Si no tiene idTelefono, NO se hace nada
+                    if (empty($tel['idTelefono'])) {
+                        Logger::logGlobal("⚠️ Teléfono ignorado (sin idTelefono)");
+                        continue;
+                    }
+
+                    $stmtUpdateTelefono->execute([
+                        $tel['telefono'],
+                        $tel['idTelefono'],
+                        $data['idPersona']
+                    ]);
+                }
+            }
 
         echo json_encode(["mensaje" => "Persona y om/solicitudes/pedidos actualizados"]);
     }
