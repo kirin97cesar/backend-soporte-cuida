@@ -133,7 +133,7 @@ class ProductService {
         }
     }
 
-    public function actualizarProducto($data) {
+    public function actualizarProducto($data, $email) {
         Logger::logGlobal("✏️ Actualizando producto " . json_encode($data));
 
         try {
@@ -144,16 +144,16 @@ class ProductService {
 
             if (!$producto) {
                 // Producto no existe → crear/vincular mínimo nombre y presentaciones si corresponde
-                $this->actualizarSoloNombreYCrearVinculos($data);
+                $this->actualizarSoloNombreYCrearVinculos($data, $email);
             } else {
                 // Producto existe → siempre actualizamos nombreComercial e idClasificacionValor (si vienen)
                 $this->actualizarNombreYClasificacion($data, $producto['idProducto']);
 
                 // Después procesamos petitorio o no
                 if (!empty($data['idPetitorio'])) {
-                    $this->actualizarConPetitorio($data, $producto);
+                    $this->actualizarConPetitorio($data, $producto, $email);
                 } else {
-                    $this->actualizarSinPetitorio($data);
+                    $this->actualizarSinPetitorio($data, $email);
                 }
             }
 
@@ -253,7 +253,7 @@ class ProductService {
         Logger::logGlobal("✅ Nombre y clasificación del producto actualizados para idProducto=$idProducto");
     }
 
-    private function actualizarSinPetitorio($data) {
+    private function actualizarSinPetitorio($data, $email) {
         // Actualizar nombreComercial si viene (redundante con actualizarNombreYClasificacion pero seguro)
         if (!empty($data['nombreComercial']) || isset($data['idClasificacionValor'])) {
             $this->actualizarNombreYClasificacion($data, $data['idProducto'] ?? null);
@@ -261,16 +261,17 @@ class ProductService {
 
         // Actualizar precio en presentacion canal
         $query = "UPDATE SALES_PRODUCTO_PRESENTACION_CANAL 
-                   SET precioNormal = IFNULL(?, precioNormal)
+                   SET precioNormal = IFNULL(?, precioNormal), usuarioModificacion = ?, fechaModificacion = NOW()
                  WHERE idProducto = ? AND idCanalVenta = ? AND stsProductoPresentacionCanal = 'ACT'";
         $this->conn->prepare($query)->execute([
             $data['precio'] ?? null,
+            $email ?? null,
             $data['idProducto'] ?? null,
             $data['idCanalVenta'] ?? null
         ]);
     }
 
-    private function actualizarConPetitorio($data, $producto) {
+    private function actualizarConPetitorio($data, $producto, $email) {
         // Actualizar nombre/comercial/clasificacion si vienen
         if (!empty($data['nombreComercial']) || isset($data['idClasificacionValor'])) {
             $this->actualizarNombreYClasificacion($data, $data['idProducto'] ?? $producto['idProducto'] ?? null);
@@ -283,20 +284,21 @@ class ProductService {
 
         if ($existe) {
             $query = "UPDATE SALES_PRODUCTO_PRESENTACION_PETITORIO 
-                        SET precioNormal = IFNULL(?, precioNormal), precioRimac = IFNULL(?, precioRimac), stsPetitorioProductoPresentacion = 'ACT'
+                        SET precioNormal = IFNULL(?, precioNormal), precioRimac = IFNULL(?, precioRimac), stsPetitorioProductoPresentacion = 'ACT', usuarioModificacion = ?, fechaModificacion = NOW()
                       WHERE idPetitorio = ? AND idProducto = ?";
-            $params = [$data['precio'] ?? null, $data['precio'] ?? null, $data['idPetitorio'], $data['idProducto']];
+            $params = [$data['precio'] ?? null, $data['precio'] ?? null, $email ?? null, $data['idPetitorio'], $data['idProducto']];
         } else {
             $query = "INSERT INTO SALES_PRODUCTO_PRESENTACION_PETITORIO 
-                        (idProducto, idPetitorio, idPresentacion, sku, precioNormal, precioRimac, stsPetitorioProductoPresentacion) 
-                      VALUES (?, ?, ?, ?, ?, ?, 'ACT')";
+                        (idProducto, idPetitorio, idPresentacion, sku, precioNormal, precioRimac, stsPetitorioProductoPresentacion, usuarioCreacion, fechaCreacion) 
+                      VALUES (?, ?, ?, ?, ?, ?, 'ACT', ?, NOW())";
             $params = [
                 $data['idProducto'],
                 $data['idPetitorio'],
                 $producto['idPresentacion'] ?? null,
                 $data['sku'] ?? null,
                 $data['precio'] ?? null,
-                $data['precio'] ?? null
+                $data['precio'] ?? null,
+                $email ?? null
             ];
         }
 
@@ -316,7 +318,7 @@ class ProductService {
         $this->conn->prepare($query)->execute([$nombre, $idClas, $data['idProducto']]);
     }
 
-    private function actualizarSoloNombreYCrearVinculos($data) {
+    private function actualizarSoloNombreYCrearVinculos($data, $email) {
         // Si viene idProducto, intentamos actualizar nombre/comercial/clasificacion
         if (!empty($data['idProducto']) && (!empty($data['nombreComercial']) || isset($data['idClasificacionValor']))) {
             $this->actualizarNombreComercial($data);
@@ -354,28 +356,28 @@ class ProductService {
 
         if (!$productoCanal && !empty($data['idCanalVenta'])) {
             $query = "INSERT INTO SALES_PRODUCTO_PRESENTACION_CANAL
-                        (idProducto, idCanalVenta, idPresentacion, sku, precioNormal, stsProductoPresentacionCanal, tipoDispensacion)
-                    SELECT sppc.idProducto, ?, sppc.idPresentacion, sppc.sku, sd.precioNormal, sppc.stsProductoPresentacionCanal, sppc.tipoDispensacion
+                        (idProducto, idCanalVenta, idPresentacion, sku, precioNormal, stsProductoPresentacionCanal, tipoDispensacion, usuarioCreacion, fechaCreacion)
+                    SELECT sppc.idProducto, ?, sppc.idPresentacion, sppc.sku, sd.precioNormal, sppc.stsProductoPresentacionCanal, sppc.tipoDispensacion, ?, NOW()
                     FROM SALES_DATA_PRODUCTO_PETITORIO_TEMPORAL sd
                     JOIN SALES_PRODUCTO_PRESENTACION_CANAL sppc ON sd.sku = sppc.sku
                     WHERE sppc.idCanalVenta = 46 AND sppc.stsProductoPresentacionCanal = 'ACT'";
-            $this->conn->prepare($query)->execute([$data['idCanalVenta']]);
+            $this->conn->prepare($query)->execute([$data['idCanalVenta'], $email ?? null]);
         } else if (!empty($data['idCanalVenta'])) {
             $query = "UPDATE SALES_PRODUCTO_PRESENTACION_CANAL
-                        SET precioNormal = IFNULL(?, precioNormal)
+                        SET precioNormal = IFNULL(?, precioNormal), usuarioModificacion = ?, fechaModificacion = NOW()
                     WHERE idCanalVenta = ? AND idProducto = ?
                     AND stsProductoPresentacionCanal = 'ACT'";
-            $this->conn->prepare($query)->execute([$data['precio'] ?? null, $data['idCanalVenta'], $data['idProducto'] ?? null]);
+            $this->conn->prepare($query)->execute([$data['precio'] ?? null, $email ?? null, $data['idCanalVenta'], $data['idProducto'] ?? null]);
         }
 
         if (!empty($data['idPetitorio'])) {
             $query = "INSERT INTO SALES_PRODUCTO_PRESENTACION_PETITORIO
-                        (idProducto, idPetitorio, idPresentacion, sku, precioNormal, precioRimac, stsPetitorioProductoPresentacion)
-                      SELECT sppc.idProducto, ?, sppc.idPresentacion, sppc.sku, sd.precioNormal, sd.precioNormal, sppc.stsProductoPresentacionCanal
+                        (idProducto, idPetitorio, idPresentacion, sku, precioNormal, precioRimac, stsPetitorioProductoPresentacion, usuarioCreacion, fechaCreacion)
+                      SELECT sppc.idProducto, ?, sppc.idPresentacion, sppc.sku, sd.precioNormal, sd.precioNormal, sppc.stsProductoPresentacionCanal, ?, NOW()
                       FROM SALES_DATA_PRODUCTO_PETITORIO_TEMPORAL sd
                       JOIN SALES_PRODUCTO_PRESENTACION_CANAL sppc ON sd.sku = sppc.sku
                       WHERE sppc.idCanalVenta = 46 AND sppc.stsProductoPresentacionCanal = 'ACT'";
-            $this->conn->prepare($query)->execute([$data['idPetitorio']]);
+            $this->conn->prepare($query)->execute([$data['idPetitorio'], $email ?? null]);
         }
     }
 
