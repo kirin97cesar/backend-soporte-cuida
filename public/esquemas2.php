@@ -15,22 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 
-require_once __DIR__ . '/../src/ProductService.php';
+require_once __DIR__ . '/../src/EsquemasServiceV2.php';
 require_once __DIR__ . '/../src/JWTUtils.php';
+
 
 // Determinar la URI relativa (después de /api/public)
 $basePath = '/api/public';
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = str_replace($basePath, '', $requestUri);
 Logger::logGlobal("🧪 path: $path ");
-$sku = $_GET['sku'] ?? null;
-$idPetitorio = $_GET['idPetitorio'] ?? null;
+$codigoCie = $_GET['codigoCie'] ?? null;
 $idCanalVenta = $_GET['idCanalVenta'] ?? null;
-Logger::logGlobal("🧪 ID: $id ");
+
+// Obtener método, recurso e ID
 $method = $_SERVER['REQUEST_METHOD'];
-
-Logger::logGlobal("🌐 $method $requestUri");
-
 
 Logger::logGlobal("🧪 path: $path ");
 
@@ -68,18 +66,20 @@ if (!$usuario) {
     echo json_encode(["error" => "Token inválido o expirado"]);
     exit;
 }
+
 $email = JWTUtils::obtenerEmail($token);
 
+
 // Procesar la solicitud
-$service = new ProductService();
+$service = new EsquemasServiceV2();
 $input = json_decode(file_get_contents("php://input"), true);
 
 switch ($method) {
     case 'GET':
-        $sku ? $service->buscarProducto($idPetitorio, $sku, $idCanalVenta) : $service->index();
+        ($codigoCie) ? $service->buscarEsquema($codigoCie, $idCanalVenta) : $service->index();
         break;
     case 'POST':
-        $service->actualizarProducto($input, $email);
+        ($input['productos']) ? $service->registrarEsquema($input, $email) : $service->actualizarEsquema($input);
         break;
     default:
         http_response_code(405);
