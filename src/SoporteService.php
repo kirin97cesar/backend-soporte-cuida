@@ -187,7 +187,7 @@ class SoporteService {
 
             /*
             ============================
-            QUERY UNICA
+            QUERY
             ============================
             */
 
@@ -273,10 +273,9 @@ class SoporteService {
             foreach ($rows as $row) {
 
                 $tipoRaw = $row['tipo'];
-
                 $tipo = $tiposNormalizados[$tipoRaw] ?? "Soporte";
 
-                $usuario = $row['usuario'];
+                $usuario = strtolower(trim($row['usuario'])); // normalizar usuario
                 $hora = (int)$row['hora'];
                 $fecha = $row['fecha'];
                 $mesIndex = $row['mes'] - 1;
@@ -290,10 +289,8 @@ class SoporteService {
                 $idx = $mapTipos[$tipo] ?? null;
 
                 if ($idx !== null) {
-
                     $dataTicketsPorTipo["total"][$tipo] += $total;
                     $dataTicketsPorTipo["porMes"][$mesNombre][$idx] += $total;
-
                 }
 
                 /*
@@ -355,7 +352,30 @@ class SoporteService {
                 }
 
                 $ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw] += $total;
+            }
 
+            /*
+            ============================
+            LIMITAR DATA PARA DASHBOARD
+            ============================
+            */
+
+            ksort($dataSoportes);
+
+            // limitar heatmap si es año completo
+            if (!$filtroMes || $filtroMes === "todos") {
+                if (count($dataSoportes) > 90) {
+                    $dataSoportes = array_slice($dataSoportes, -90, null, true);
+                }
+            }
+
+            foreach ($tiposPorDia as $tipo => $dias) {
+
+                ksort($dias);
+
+                if (count($dias) > 120) {
+                    $tiposPorDia[$tipo] = array_slice($dias, -120, null, true);
+                }
             }
 
             /*
@@ -365,8 +385,6 @@ class SoporteService {
             */
 
             $heatmapSeries = [];
-
-            ksort($dataSoportes);
 
             foreach ($dataSoportes as $fecha => $horas) {
 
