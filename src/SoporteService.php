@@ -149,166 +149,266 @@ class SoporteService {
         }
     }
 
-    public function obtenerReporte($filtroMes = null, $filtroAnio = null, $filtroUsuario = null) {
-    try {
-        Logger::logGlobal("📦 Generando reporte de soportes");
+    public function obtenerReporte($filtroMes = null, $filtroAnio = null, $filtroUsuario = null)
+    {
+        try {
 
-        $params = [];
-        $condiciones = [];
+            Logger::logGlobal("📦 Generando reporte de soportes");
 
-        $hoy = new DateTime();
-        $ultimoMes = (int)$hoy->format('m');
-        $ultimoAnio = (int)$hoy->format('Y');
+            $params = [];
+            $condiciones = [];
 
-        // Filtros
-        if (!$filtroAnio || $filtroAnio === "todos") {
-            $anio = $ultimoAnio;
-        } else {
-            $anio = (int)$filtroAnio;
-        }
-        $condiciones[] = "YEAR(fechaCreacion) = :anio";
-        $params[':anio'] = $anio;
+            $hoy = new DateTime();
+            $ultimoAnio = (int)$hoy->format('Y');
 
-        if ($filtroMes && $filtroMes !== "todos") {
-            $condiciones[] = "MONTH(fechaCreacion) = :mes";
-            $params[':mes'] = (int)$filtroMes;
-        }
+            $anio = (!$filtroAnio || $filtroAnio === "todos") ? $ultimoAnio : (int)$filtroAnio;
 
-        if ($filtroUsuario && $filtroUsuario !== "todos") {
-            $condiciones[] = "usuario = :usuario";
-            $params[':usuario'] = $filtroUsuario;
-        }
+            $fechaInicio = "$anio-01-01 00:00:00";
+            $fechaFin = ($anio + 1) . "-01-01 00:00:00";
 
-        $where = count($condiciones) ? "WHERE ".implode(" AND ", $condiciones) : "";
+            if ($filtroMes && $filtroMes !== "todos") {
 
-        // Tipos y nombres
-        $tipos = ["Soporte", "Pase a producción", "Incidencia", "Mejora"];
-        $mesesNombre = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-        $diaSemana = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+                $mes = str_pad($filtroMes,2,"0",STR_PAD_LEFT);
+                $fechaInicio = "$anio-$mes-01 00:00:00";
+                $fechaFin = date("Y-m-d H:i:s", strtotime("$fechaInicio +1 month"));
 
-        // Query normalizada (para gráficos agrupados)
-        $query = "
+            }
+
+            $condiciones[] = "fechaCreacion >= :inicio AND fechaCreacion < :fin";
+            $params[':inicio'] = $fechaInicio;
+            $params[':fin'] = $fechaFin;
+
+            if ($filtroUsuario && $filtroUsuario !== "todos") {
+                $condiciones[] = "usuario = :usuario";
+                $params[':usuario'] = $filtroUsuario;
+            }
+
+            $where = "WHERE " . implode(" AND ", $condiciones);
+
+            /*
+            ============================
+            QUERY UNICA
+            ============================
+            */
+
+            $query = "
             SELECT 
                 usuario,
-                CASE 
-                    WHEN tipo NOT IN ('MEJORA','PASE A PRODUCCION','INCIDENCIA') THEN 'Soporte'
-                    WHEN tipo = 'MEJORA' THEN 'Mejora'
-                    WHEN tipo = 'PASE A PRODUCCION' THEN 'Pase a producción'
-                    WHEN tipo = 'INCIDENCIA' THEN 'Incidencia'
-                END AS tipo,
-                fechaCreacion
+                tipo,
+                DATE(fechaCreacion) fecha,
+                HOUR(fechaCreacion) hora,
+                MONTH(fechaCreacion) mes,
+                COUNT(*) total
             FROM SALES_SOPORTES
             $where
-            ORDER BY fechaCreacion ASC;
-        ";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute($params);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            GROUP BY usuario, tipo, fecha, hora
+            ";
 
-        // Query RAW (sin normalizar) — la usamos para ticketsPorTodosLosTipos y tiposPorDia
-        $queryRaw = "
-            SELECT usuario, tipo, fechaCreacion
-            FROM SALES_SOPORTES
-            $where
-            ORDER BY fechaCreacion ASC;
-        ";
-        $stmtRaw = $this->conn->prepare($queryRaw);
-        $stmtRaw->execute($params);
-        $rowsRaw = $stmtRaw->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // ======== GRÁFICOS EXISTENTES (a partir de la query normalizada) ========
-        $dataTicketsPorTipo = ["total"=>array_fill_keys($tipos,0),"porMes"=>[]];
-        foreach ($mesesNombre as $mes) $dataTicketsPorTipo["porMes"][$mes] = array_fill(0,count($tipos),0);
+            /*
+            ============================
+            CONFIG
+            ============================
+            */
 
-        $dataDevs = [];
-        $dataMeses = [];
-        foreach ($tipos as $tipo) $dataMeses[$tipo] = array_fill(0,12,0);
+            $tiposNormalizados = [
+                "MEJORA" => "Mejora",
+                "PASE A PRODUCCION" => "Pase a producción",
+                "INCIDENCIA" => "Incidencia"
+            ];
 
-        $dataSoportes = [];
-        $mapTipos = array_flip($tipos); // para evitar array_search en cada iteración
+            $tipos = ["Soporte","Pase a producción","Incidencia","Mejora"];
 
-        foreach ($rows as $row) {
-            $tipo = $row['tipo'];
-            $usuario = $row['usuario'];
-            $fecha = new DateTime($row['fechaCreacion']);
-            $mesNombre = $mesesNombre[$fecha->format('n')-1];
-            $diaHora = $fecha->format('Y-m-d');
-            $hora = (int)$fecha->format('G');
+            $mesesNombre = [
+                'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
+            ];
 
-            $idx = $mapTipos[$tipo] ?? null;
-            if ($idx !== null) {
-                $dataTicketsPorTipo["total"][$tipo]++;
-                $dataTicketsPorTipo["porMes"][$mesNombre][$idx]++;
+            $diaSemana = [
+                'Domingo','Lunes','Martes','Miércoles',
+                'Jueves','Viernes','Sábado'
+            ];
+
+            /*
+            ============================
+            ESTRUCTURAS
+            ============================
+            */
+
+            $dataTicketsPorTipo = [
+                "total" => array_fill_keys($tipos,0),
+                "porMes" => []
+            ];
+
+            foreach ($mesesNombre as $mes) {
+                $dataTicketsPorTipo["porMes"][$mes] = array_fill(0,count($tipos),0);
             }
 
-            if (!isset($dataDevs[$usuario])) $dataDevs[$usuario] = 0;
-            $dataDevs[$usuario]++;
+            $ticketsPorTodosLosTipos = [
+                "total"=>[],
+                "porMes"=>[]
+            ];
 
-            if (isset($dataMeses[$tipo])) $dataMeses[$tipo][$fecha->format('n')-1]++;
+            $dataDevs = [];
 
-            if ((!$filtroMes || $filtroMes === "todos") && $fecha->format('n') == $ultimoMes) {
-                if(!isset($dataSoportes[$diaHora])) $dataSoportes[$diaHora] = array_fill(0,24,0);
-                $dataSoportes[$diaHora][$hora]++;
-            } elseif ($filtroMes && $filtroMes !== "todos") {
-                if(!isset($dataSoportes[$diaHora])) $dataSoportes[$diaHora] = array_fill(0,24,0);
-                $dataSoportes[$diaHora][$hora]++;
+            $dataMeses = [];
+            foreach ($tipos as $tipo) {
+                $dataMeses[$tipo] = array_fill(0,12,0);
             }
+
+            $dataSoportes = [];
+            $tiposPorDia = [];
+
+            $mapTipos = array_flip($tipos);
+
+            /*
+            ============================
+            PROCESAMIENTO
+            ============================
+            */
+
+            foreach ($rows as $row) {
+
+                $tipoRaw = $row['tipo'];
+
+                $tipo = $tiposNormalizados[$tipoRaw] ?? "Soporte";
+
+                $usuario = $row['usuario'];
+                $hora = (int)$row['hora'];
+                $fecha = $row['fecha'];
+                $mesIndex = $row['mes'] - 1;
+                $mesNombre = $mesesNombre[$mesIndex];
+                $total = (int)$row['total'];
+
+                /*
+                ticketsPorTipo
+                */
+
+                $idx = $mapTipos[$tipo] ?? null;
+
+                if ($idx !== null) {
+
+                    $dataTicketsPorTipo["total"][$tipo] += $total;
+                    $dataTicketsPorTipo["porMes"][$mesNombre][$idx] += $total;
+
+                }
+
+                /*
+                devs
+                */
+
+                if (!isset($dataDevs[$usuario])) {
+                    $dataDevs[$usuario] = 0;
+                }
+
+                $dataDevs[$usuario] += $total;
+
+                /*
+                meses
+                */
+
+                $dataMeses[$tipo][$mesIndex] += $total;
+
+                /*
+                heatmap
+                */
+
+                if (!isset($dataSoportes[$fecha])) {
+                    $dataSoportes[$fecha] = array_fill(0,24,0);
+                }
+
+                $dataSoportes[$fecha][$hora] += $total;
+
+                /*
+                tiposPorDia
+                */
+
+                if (!isset($tiposPorDia[$tipoRaw])) {
+                    $tiposPorDia[$tipoRaw] = [];
+                }
+
+                if (!isset($tiposPorDia[$tipoRaw][$fecha])) {
+                    $tiposPorDia[$tipoRaw][$fecha] = 0;
+                }
+
+                $tiposPorDia[$tipoRaw][$fecha] += $total;
+
+                /*
+                todos los tipos
+                */
+
+                if (!isset($ticketsPorTodosLosTipos["total"][$tipoRaw])) {
+                    $ticketsPorTodosLosTipos["total"][$tipoRaw] = 0;
+                }
+
+                $ticketsPorTodosLosTipos["total"][$tipoRaw] += $total;
+
+                if (!isset($ticketsPorTodosLosTipos["porMes"][$mesNombre])) {
+                    $ticketsPorTodosLosTipos["porMes"][$mesNombre] = [];
+                }
+
+                if (!isset($ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw])) {
+                    $ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw] = 0;
+                }
+
+                $ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw] += $total;
+
+            }
+
+            /*
+            ============================
+            HEATMAP
+            ============================
+            */
+
+            $heatmapSeries = [];
+
+            ksort($dataSoportes);
+
+            foreach ($dataSoportes as $fecha => $horas) {
+
+                $fechaObj = new DateTime($fecha);
+
+                $nombreDia = $diaSemana[$fechaObj->format('w')];
+                $nombreMes = $mesesNombre[$fechaObj->format('n') - 1];
+
+                $heatmapSeries[] = [
+                    "name" => "$nombreDia {$fechaObj->format('d')} $nombreMes",
+                    "data" => $horas
+                ];
+            }
+
+            arsort($dataDevs);
+
+            /*
+            ============================
+            RESPUESTA
+            ============================
+            */
+
+            echo json_encode([
+                "ticketsPorTipo"=>$dataTicketsPorTipo,
+                "ticketsPorTodosLosTipos"=>$ticketsPorTodosLosTipos,
+                "devs"=>$dataDevs,
+                "meses"=>$dataMeses,
+                "soportes"=>$heatmapSeries,
+                "tiposPorDia"=>$tiposPorDia
+            ]);
+
+        } catch (PDOException $e) {
+
+            Logger::logGlobal("❌ Error: " . $e->getMessage());
+
+            http_response_code(500);
+
+            echo json_encode([
+                "status"=>"error",
+                "message"=>"No se pudo generar el reporte"
+            ]);
         }
-
-        $heatmapSeries = [];
-        ksort($dataSoportes);
-        foreach ($dataSoportes as $fecha => $horas) {
-            $fechaObj = new DateTime($fecha);
-            $nombreDia = $diaSemana[$fechaObj->format('w')];
-            $nombreMes = $mesesNombre[$fechaObj->format('n') - 1];
-            $x = "$nombreDia {$fechaObj->format('d')} $nombreMes";
-            $heatmapSeries[] = ["name"=>$x, "data"=>$horas];
-        }
-
-        arsort($dataDevs);
-
-        // ======== CORRECCIÓN: tiposPorDia (A PARTIR DE LA QUERY RAW) ========
-        $tiposPorDia = [];
-        foreach ($rowsRaw as $row) {
-            $tipoRaw = $row['tipo'];
-            $fechaYmd = (new DateTime($row['fechaCreacion']))->format('Y-m-d');
-
-            if (!isset($tiposPorDia[$tipoRaw])) $tiposPorDia[$tipoRaw] = [];
-            if (!isset($tiposPorDia[$tipoRaw][$fechaYmd])) $tiposPorDia[$tipoRaw][$fechaYmd] = 0;
-            $tiposPorDia[$tipoRaw][$fechaYmd]++;
-        }
-
-        // ======== NUEVO: ticketsPorTodosLosTipos (también a partir de rowsRaw) ========
-        $ticketsPorTodosLosTipos = ["total"=>[],"porMes"=>[]];
-        foreach ($rowsRaw as $row) {
-            $tipoRaw = $row['tipo'];
-            $fecha = new DateTime($row['fechaCreacion']);
-            $mesNombre = $mesesNombre[$fecha->format('n')-1];
-
-            if (!isset($ticketsPorTodosLosTipos["total"][$tipoRaw])) $ticketsPorTodosLosTipos["total"][$tipoRaw] = 0;
-            if (!isset($ticketsPorTodosLosTipos["porMes"][$mesNombre])) $ticketsPorTodosLosTipos["porMes"][$mesNombre] = [];
-            if (!isset($ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw])) $ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw] = 0;
-
-            $ticketsPorTodosLosTipos["total"][$tipoRaw]++;
-            $ticketsPorTodosLosTipos["porMes"][$mesNombre][$tipoRaw]++;
-        }
-
-        // ======== Respuesta final ========
-        echo json_encode([
-            "ticketsPorTipo" => $dataTicketsPorTipo,
-            "ticketsPorTodosLosTipos" => $ticketsPorTodosLosTipos,
-            "devs" => $dataDevs,
-            "meses" => $dataMeses,
-            "soportes" => $heatmapSeries,
-            "tiposPorDia" => $tiposPorDia
-        ]);
-
-    } catch (PDOException $e) {
-        Logger::logGlobal("❌ Error: ".$e->getMessage());
-        http_response_code(500);
-        echo json_encode(["status"=>"error","message"=>"No se pudo generar el reporte!"]);
     }
-}
-
 
 }
